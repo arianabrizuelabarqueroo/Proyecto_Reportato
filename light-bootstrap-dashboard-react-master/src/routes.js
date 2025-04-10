@@ -17,6 +17,7 @@
 */
 import Dashboard from "views/Dashboard.js";
 import UserProfile from "views/UserProfile.js";
+import SupplierList from "views/SupplierList.js";
 import TableList from "views/TableList.js";
 import Typography from "views/Typography.js";
 import Icons from "views/Icons.js";
@@ -26,16 +27,10 @@ import Upgrade from "views/Upgrade.js";
 import GestionInventario from "views/GestionInventario.js";
 import Usuarios from "views/Usuarios.js";
 import Roles from "views/Roles.js";
+import LoyaltyModule from "views/LoyaltyModule.js";
+import SalesRegister from "views/SalesRegister";
 
 const dashboardRoutes = [
-  {
-    upgrade: true,
-    path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "nc-icon nc-alien-33",
-    component: Upgrade,
-    layout: "/admin"
-  },
   {
     path: "/dashboard",
     name: "Dashboard",
@@ -48,6 +43,13 @@ const dashboardRoutes = [
     name: "User Profile",
     icon: "nc-icon nc-circle-09",
     component: UserProfile,
+    layout: "/admin"
+  },
+  {
+    path: "/supplier",
+    name: "Supplier List",
+    icon: "nc-icon nc-notes",
+    component: SupplierList,
     layout: "/admin"
   },
   {
@@ -104,6 +106,20 @@ const dashboardRoutes = [
     name: "Roles",
     icon: "nc-icon nc-circle-09",
     component: Roles,
+    layout: "/admin"
+ },
+  {
+    path: "/loyalty",
+    name: "Loyalty Module",
+    icon: "nc-icon nc-bell-55",
+    component: LoyaltyModule,
+    layout: "/admin"
+  },
+  {
+    path: "/SalesRegister",
+    name: "Sales Register",
+    icon: "nc-icon nc-bank",
+    component: SalesRegister,
     layout: "/admin"
   }
 
