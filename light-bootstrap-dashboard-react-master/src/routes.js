@@ -24,16 +24,9 @@ import Maps from "views/Maps.js";
 import Notifications from "views/Notifications.js";
 import Upgrade from "views/Upgrade.js";
 import LoyaltyModule from "views/LoyaltyModule.js";
+import SalesRegister from "views/SalesRegister";
 
 const dashboardRoutes = [
-  {
-    upgrade: true,
-    path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "nc-icon nc-alien-33",
-    component: Upgrade,
-    layout: "/admin"
-  },
   {
     path: "/dashboard",
     name: "Dashboard",
@@ -88,6 +81,13 @@ const dashboardRoutes = [
     name: "Loyalty Module",
     icon: "nc-icon nc-bell-55",
     component: LoyaltyModule,
+    layout: "/admin"
+  },
+  {
+    path: "/SalesRegister",
+    name: "Sales Register",
+    icon: "nc-icon nc-bank",
+    component: SalesRegister,
     layout: "/admin"
   }
 ];
