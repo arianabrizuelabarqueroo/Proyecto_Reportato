@@ -23,6 +23,7 @@ import Icons from "views/Icons.js";
 import Maps from "views/Maps.js";
 import Notifications from "views/Notifications.js";
 import Upgrade from "views/Upgrade.js";
+import LoyaltyModule from "views/LoyaltyModule.js";
 import SalesRegister from "views/SalesRegister";
 
 const dashboardRoutes = [
@@ -73,6 +74,13 @@ const dashboardRoutes = [
     name: "Notifications",
     icon: "nc-icon nc-bell-55",
     component: Notifications,
+    layout: "/admin"
+  },
+  {
+    path: "/loyalty",
+    name: "Loyalty Module",
+    icon: "nc-icon nc-bell-55",
+    component: LoyaltyModule,
     layout: "/admin"
   },
   {
