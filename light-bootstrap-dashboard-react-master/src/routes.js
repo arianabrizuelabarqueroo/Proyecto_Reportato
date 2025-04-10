@@ -23,6 +23,9 @@ import Icons from "views/Icons.js";
 import Maps from "views/Maps.js";
 import Notifications from "views/Notifications.js";
 import Upgrade from "views/Upgrade.js";
+import GestionInventario from "views/GestionInventario.js";
+import Usuarios from "views/Usuarios.js";
+import Roles from "views/Roles.js";
 
 const dashboardRoutes = [
   {
@@ -81,7 +84,29 @@ const dashboardRoutes = [
     icon: "nc-icon nc-bell-55",
     component: Notifications,
     layout: "/admin"
+  },
+  {
+    path: "/GestionInventario",
+    name: "Gestion de Inventario",
+    icon: "nc-icon nc-notes",
+    component: GestionInventario,
+    layout: "/admin"
+  },
+  {
+    path: "/Usuarios",
+    name: "Usuarios",
+    icon: "nc-icon nc-circle-09",
+    component: Usuarios,
+    layout: "/admin"
+  },
+  {
+    path: "/Roles",
+    name: "Roles",
+    icon: "nc-icon nc-circle-09",
+    component: Roles,
+    layout: "/admin"
   }
+
 ];
 
 export default dashboardRoutes;
