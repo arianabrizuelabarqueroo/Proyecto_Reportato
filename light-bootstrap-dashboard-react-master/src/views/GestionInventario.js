@@ -7,46 +7,40 @@ import {
   Col,
   Button,
   Form,
+  Tabs,
+  Tab,
 } from "react-bootstrap";
 
 const styles = {
   header: {
-    backgroundColor: "#373737",
+    backgroundColor: "#2E7D32", // Verde oscuro
     color: "#FFFFFF",
     padding: "1rem",
     borderTopLeftRadius: "0.5rem",
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#F17C1D",
+    color: "#C8E6C9", // Verde claro
     marginBottom: "0.2rem",
   },
   category: {
-    color: "#8C8D8D",
+    color: "#A5D6A7",
     fontSize: "0.9rem",
   },
   cardBody: {
     backgroundColor: "#FFFFFF",
   },
   btnPrimary: {
-    backgroundColor: "#F17C1D",
-    borderColor: "#F17C1D",
-  },
-  btnSuccess: {
-    backgroundColor: "#7FAD39",
-    borderColor: "#7FAD39",
-  },
-  btnInfo: {
-    backgroundColor: "#8C8D8D",
-    borderColor: "#8C8D8D",
+    backgroundColor: "#66BB6A",
+    borderColor: "#66BB6A",
   },
 };
 
 function GestionInventario() {
   return (
     <Container fluid>
-      <Row>
-        <Col md="12">
+      <Tabs defaultActiveKey="registro" className="mb-3">
+        <Tab eventKey="registro" title="Registro de Productos">
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>Registro de Productos Recibidos</h4>
@@ -66,10 +60,7 @@ function GestionInventario() {
                   <Col md="4">
                     <Form.Group>
                       <Form.Label>Cantidad</Form.Label>
-                      <Form.Control
-                        type="number"
-                        placeholder="Ingrese cantidad"
-                      />
+                      <Form.Control type="number" placeholder="Ingrese cantidad" />
                     </Form.Group>
                   </Col>
                   <Col md="4">
@@ -108,10 +99,9 @@ function GestionInventario() {
               </Table>
             </Card.Body>
           </Card>
-        </Col>
+        </Tab>
 
-        {/* REP-INV-002 */}
-        <Col md="12">
+        <Tab eventKey="movimientos" title="Movimientos de Inventario">
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>Movimientos de Inventario</h4>
@@ -142,16 +132,15 @@ function GestionInventario() {
                     </Form.Group>
                   </Col>
                 </Row>
-                <Button style={styles.btnSuccess} className="mt-3">
+                <Button style={styles.btnPrimary} className="mt-3">
                   Registrar Movimiento
                 </Button>
               </Form>
             </Card.Body>
           </Card>
-        </Col>
+        </Tab>
 
-        {/* REP-INV-003 */}
-        <Col md="12">
+        <Tab eventKey="disponible" title="Inventario Disponible">
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>Inventario Disponible</h4>
@@ -183,10 +172,9 @@ function GestionInventario() {
               </Table>
             </Card.Body>
           </Card>
-        </Col>
+        </Tab>
 
-        {/* REP-INV-004 */}
-        <Col md="12">
+        <Tab eventKey="alertas" title="Alertas de Stock">
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>Alertas de Stock Bajo</h4>
@@ -217,10 +205,9 @@ function GestionInventario() {
               </Table>
             </Card.Body>
           </Card>
-        </Col>
+        </Tab>
 
-        {/* REP-INV-005 */}
-        <Col md="12">
+        <Tab eventKey="historial" title="Historial">
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>Historial de Inventario</h4>
@@ -265,10 +252,9 @@ function GestionInventario() {
               </Table>
             </Card.Body>
           </Card>
-        </Col>
+        </Tab>
 
-        {/* REP-INV-006 */}
-        <Col md="12">
+        <Tab eventKey="asociacion" title="Productos-Proveedores">
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>
@@ -292,7 +278,7 @@ function GestionInventario() {
                     </Form.Group>
                   </Col>
                 </Row>
-                <Button style={styles.btnInfo} className="mt-3">
+                <Button style={styles.btnPrimary} className="mt-3">
                   Vincular
                 </Button>
               </Form>
@@ -314,10 +300,11 @@ function GestionInventario() {
               </Table>
             </Card.Body>
           </Card>
-        </Col>
-      </Row>
+        </Tab>
+      </Tabs>
     </Container>
   );
 }
 
 export default GestionInventario;
+

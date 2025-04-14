@@ -18,17 +18,17 @@
 import Dashboard from "views/Dashboard.js";
 import UserProfile from "views/UserProfile.js";
 import SupplierList from "views/SupplierList.js";
-import TableList from "views/TableList.js";
-import Typography from "views/Typography.js";
-import Icons from "views/Icons.js";
-import Maps from "views/Maps.js";
-import Notifications from "views/Notifications.js";
 import Upgrade from "views/Upgrade.js";
-import GestionInventario from "views/GestionInventario.js";
 import Usuarios from "views/Usuarios.js";
 import Roles from "views/Roles.js";
 import LoyaltyModule from "views/LoyaltyModule.js";
 import SalesRegister from "views/SalesRegister";
+import AlertasStockBajo from "views/AlertasStockBajo";
+import AsociacionProductosProveedores from "views/AsociacionProductosProveedores";
+import HistorialInventario from "views/HistorialInventario";
+import InventarioDisponible from "views/InventarioDisponible";
+import MovimientosInventario from "views/MovimientosInventario";
+import RegistroProductos from "views/RegistroProductos";
 
 const dashboardRoutes = [
   {
@@ -50,48 +50,6 @@ const dashboardRoutes = [
     name: "Supplier List",
     icon: "nc-icon nc-notes",
     component: SupplierList,
-    layout: "/admin"
-  },
-  {
-    path: "/table",
-    name: "Table List",
-    icon: "nc-icon nc-notes",
-    component: TableList,
-    layout: "/admin"
-  },
-  {
-    path: "/typography",
-    name: "Typography",
-    icon: "nc-icon nc-paper-2",
-    component: Typography,
-    layout: "/admin"
-  },
-  {
-    path: "/icons",
-    name: "Icons",
-    icon: "nc-icon nc-atom",
-    component: Icons,
-    layout: "/admin"
-  },
-  {
-    path: "/maps",
-    name: "Maps",
-    icon: "nc-icon nc-pin-3",
-    component: Maps,
-    layout: "/admin"
-  },
-  {
-    path: "/notifications",
-    name: "Notifications",
-    icon: "nc-icon nc-bell-55",
-    component: Notifications,
-    layout: "/admin"
-  },
-  {
-    path: "/GestionInventario",
-    name: "Gestion de Inventario",
-    icon: "nc-icon nc-notes",
-    component: GestionInventario,
     layout: "/admin"
   },
   {
@@ -121,8 +79,58 @@ const dashboardRoutes = [
     icon: "nc-icon nc-bank",
     component: SalesRegister,
     layout: "/admin"
-  }
+  },
 
-];
+   // SUBMENÚ GESTIÓN DE INVENTARIO
+   {
+    collapse: true,
+    icon: "nc-icon nc-box",
+    state: "gestionInventarioCollapse",
+    views: [
+      {
+        path: "/AlertasStockBajo",
+        name: "Alertas Stock Bajo",
+        icon: "nc-icon nc-notes",
+        component: AlertasStockBajo,
+        layout: "/admin"
+      },
+      {
+        path: "/AsociacionProductosProveedores",
+        name: "Productos-Proveedores",
+        icon: "nc-icon nc-notes",
+        component: AsociacionProductosProveedores,
+        layout: "/admin"
+      },
+      {
+        path: "/HistorialInventario",
+        name: "Historial Inventario",
+        icon: "nc-icon nc-notes",
+        component: HistorialInventario,
+        layout: "/admin"
+      },
+      {
+        path: "/InventarioDisponible",
+        name: "Inventario Disponible",
+        icon: "nc-icon nc-notes",
+        component: InventarioDisponible,
+        layout: "/admin"
+      },
+      {
+        path: "/MovimientosInventario",
+        name: "Movimientos Inventario",
+        icon: "nc-icon nc-notes",
+        component: MovimientosInventario,
+        layout: "/admin"
+      },
+      {
+        path: "/RegistroProductos",
+        name: "Registro Productos",
+        icon: "nc-icon nc-notes",
+        component: RegistroProductos,
+        layout: "/admin"
+      }
+    ]
+  }  
+]
 
 export default dashboardRoutes;

@@ -34,8 +34,24 @@ function Admin() {
   const location = useLocation();
   const mainPanel = React.useRef(null);
   const getRoutes = (routes) => {
-    return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
+    return routes.flatMap((prop, key) => {
+      if (prop.collapse && prop.views) {
+        // Si es un menú colapsable, recorrer sus vistas
+        return prop.views.map((subProp, subKey) => {
+          if (subProp.layout === "/admin") {
+            return (
+              <Route
+                path={subProp.layout + subProp.path}
+                render={(props) => <subProp.component {...props} />}
+                key={`submenu-${subKey}`}
+              />
+            );
+          } else {
+            return null;
+          }
+        });
+      } else if (prop.layout === "/admin") {
+        // Si es una ruta normal
         return (
           <Route
             path={prop.layout + prop.path}
@@ -47,7 +63,7 @@ function Admin() {
         return null;
       }
     });
-  };
+  };  
   React.useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
