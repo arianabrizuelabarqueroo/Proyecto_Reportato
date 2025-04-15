@@ -81,31 +81,31 @@ function Header() {
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Notification 1
+                  Notificacion 1
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Notification 2
+                  Notificacion 2
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Notification 3
+                  Notificacion 3
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Notification 4
+                  Notificacion 4
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Another notification
+                  Otra Notificacion
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -116,7 +116,7 @@ function Header() {
                 onClick={(e) => e.preventDefault()}
               >
                 <i className="nc-icon nc-zoom-split"></i>
-                <span className="d-lg-block"> Search</span>
+                <span className="d-lg-block"><a style={{padding: "10px"}}> Busqueda </a></span>
               </Nav.Link>
             </Nav.Item>
           </Nav>
@@ -127,7 +127,7 @@ function Header() {
                 href="#pablo"
                 onClick={(e) => e.preventDefault()}
               >
-                <span className="no-icon">Account</span>
+                <span className="no-icon">Cuenta</span>
               </Nav.Link>
             </Nav.Item>
             <Dropdown as={Nav.Item}>
@@ -140,39 +140,39 @@ function Header() {
                 variant="default"
                 className="m-0"
               >
-                <span className="no-icon">Dropdown</span>
+                <span className="no-icon">Lista</span>
               </Dropdown.Toggle>
               <Dropdown.Menu aria-labelledby="navbarDropdownMenuLink">
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Action
+                  Accion
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Another action
+                  Otra Accion
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Something
+                  Accion 1
                 </Dropdown.Item>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Something else here
+                  Accion 2
                 </Dropdown.Item>
                 <div className="divider"></div>
                 <Dropdown.Item
                   href="#pablo"
                   onClick={(e) => e.preventDefault()}
                 >
-                  Separated link
+                  Enlace separado
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -182,7 +182,7 @@ function Header() {
                 href="#pablo"
                 onClick={(e) => e.preventDefault()}
               >
-                <span className="no-icon">Log out</span>
+                <span className="no-icon">Cerrar Sesión</span>
               </Nav.Link>
             </Nav.Item>
           </Nav>

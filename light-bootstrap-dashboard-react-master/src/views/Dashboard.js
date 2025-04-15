@@ -143,7 +143,7 @@ function Dashboard() {
                       color: "white",
                     }}
                   >
-                    Generar reporte de Ventas
+                    Generar reporte de ventas
                   </Button>
                 </div>
               </Card.Footer>
@@ -151,8 +151,8 @@ function Dashboard() {
           </Col>
         </Row>
         <Row>
-          <Col md="8">
-            <Card>
+          <Col md="4">
+            <Card style={{width: "400px"}}>  
               <Card.Header>
                 <Card.Title as="h4">Reportes Generados</Card.Title>
               </Card.Header>
@@ -161,25 +161,26 @@ function Dashboard() {
                 <thead>
                     <tr>
                       <th className="border-0">Numero de reporte</th>
-                      <th className="border-0">Reporte</th>
+                      <th className="border-0" style={{padding: "15px"}}>Reporte</th>
                     </tr>
                     </thead>
                   <tbody>
                     <tr>
-                      <td>1</td>
-                      <td>Reporte de compras</td>
+                      <td style={{textAlign: "Center"}}>1</td>
+                      <td style={{padding: "15px"}}>Reporte de compras</td>
                     </tr>
                     <tr>
-                    <td>2</td>
-                      <td>Reporte Ventas</td>
+                    <td style={{textAlign: "Center"}}>2</td>
+                    <td style={{padding: "15px"}}>Reporte Ventas</td>
                     </tr>
                   </tbody>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-        </Row>
-        <Row>
+          <Col md= "1">
+          {/*Espaciador de las tablas de tareas y reportes*/}
+          </Col>
           <Col md="6">
             <Card className="card-tasks">
               <Card.Header>

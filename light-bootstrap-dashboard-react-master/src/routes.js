@@ -40,14 +40,14 @@ const dashboardRoutes = [
   },
   {
     path: "/user",
-    name: "User Profile",
+    name: "Perfil de Usuario",
     icon: "nc-icon nc-circle-09",
     component: UserProfile,
     layout: "/admin"
   },
   {
     path: "/supplier",
-    name: "Supplier List",
+    name: "Proveedores",
     icon: "nc-icon nc-notes",
     component: SupplierList,
     layout: "/admin"
@@ -68,14 +68,14 @@ const dashboardRoutes = [
  },
   {
     path: "/loyalty",
-    name: "Loyalty Module",
+    name: "Modulo de lealtad",
     icon: "nc-icon nc-bell-55",
     component: LoyaltyModule,
     layout: "/admin"
   },
   {
     path: "/SalesRegister",
-    name: "Sales Register",
+    name: "Registro de Ventas",
     icon: "nc-icon nc-bank",
     component: SalesRegister,
     layout: "/admin"

@@ -31,6 +31,8 @@ function SupplierList() {
                       backgroundColor: "#7FAD39",
                       borderColor: "#7FAD39",
                       color: "white",
+                      padding: "5px",
+                      marginLeft: "15px"
                     }}
                   >
                     Agregar nuevo proveedor
@@ -260,6 +262,7 @@ function SupplierList() {
                       backgroundColor: "#7FAD39",
                       borderColor: "#7FAD39",
                       color: "white",
+                      marginLeft: "15px"
                     }}
                   >
                     Registrar nueva compra
