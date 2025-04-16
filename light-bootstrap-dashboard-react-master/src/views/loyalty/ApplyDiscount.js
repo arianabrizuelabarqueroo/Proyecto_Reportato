@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Form, Button, Alert } from 'react-bootstrap'
 
-// Estilos personalizados
+// Estilos personalizadoss
 const styles = {
   header: {
     backgroundColor: "#373737",
