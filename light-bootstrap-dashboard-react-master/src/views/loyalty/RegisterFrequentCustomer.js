@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card, Form, Button } from 'react-bootstrap'
+<<<<<<< Updated upstream
 
 // Estilos personalizados
 const styles = {
@@ -42,6 +43,18 @@ const RegisterFrequentCustomer = () => {
         <h3 style={styles.title}>Register Frequent Customer</h3>
       </div>
       <div style={styles.cardBody}>
+=======
+
+const RegisterFrequentCustomer = () => {
+  return (
+    <Card className="strpied-tabled-with-hover">
+      <Card.Header>
+        <Card.Title as="h4">Register Frequent Customer</Card.Title>
+        <p className="card-category">Add a recurring customer to the loyalty program</p>
+      </Card.Header>
+
+      <Card.Body className="table-full-width table-responsive px-4">
+>>>>>>> Stashed changes
         <Form>
           <Form.Group controlId="formName">
             <Form.Label>Full Name</Form.Label>
@@ -58,11 +71,24 @@ const RegisterFrequentCustomer = () => {
             <Form.Control type="tel" placeholder="Enter phone number" />
           </Form.Group>
 
+<<<<<<< Updated upstream
           <Button style={styles.btnPrimary} className="mt-4" disabled>
+=======
+          <Button
+            className="btn-fill mt-4"
+            type="submit"
+            style={{
+              backgroundColor: "#F17C1D",
+              borderColor: "#F17C1D",
+              color: "white"
+            }}
+            disabled
+          >
+>>>>>>> Stashed changes
             Register (non-functional)
           </Button>
         </Form>
-      </div>
+      </Card.Body>
     </Card>
   )
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Card, ListGroup } from 'react-bootstrap'
 
+<<<<<<< Updated upstream
 // Estilos personalizados
 const styles = {
   header: {
@@ -42,13 +43,24 @@ const FrequentCustomerReport = () => {
         <h3 style={styles.title}>Frequent Customer Report</h3>
       </div>
       <div style={styles.cardBody}>
+=======
+const FrequentCustomerReport = () => {
+  return (
+    <Card className="strpied-tabled-with-hover">
+      <Card.Header>
+        <Card.Title as="h4">Frequent Customer Report</Card.Title>
+        <p className="card-category">Summary of purchase activity and loyalty points</p>
+      </Card.Header>
+
+      <Card.Body className="table-full-width table-responsive px-4">
+>>>>>>> Stashed changes
         <ListGroup>
           <ListGroup.Item><strong>Customer:</strong> Maria Rodriguez</ListGroup.Item>
           <ListGroup.Item><strong>Total Purchases:</strong> $125.00</ListGroup.Item>
           <ListGroup.Item><strong>Purchases This Month:</strong> 5</ListGroup.Item>
           <ListGroup.Item><strong>Loyalty Points:</strong> 60</ListGroup.Item>
         </ListGroup>
-      </div>
+      </Card.Body>
     </Card>
   )
 }

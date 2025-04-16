@@ -1,6 +1,7 @@
 import React from 'react'
 import { Card, Table } from 'react-bootstrap'
 
+<<<<<<< Updated upstream
 // Estilos personalizados
 const styles = {
   header: {
@@ -42,6 +43,17 @@ const PurchaseHistory = () => {
         <h3 style={styles.title}>Purchase History</h3>
       </div>
       <div style={styles.cardBody}>
+=======
+const PurchaseHistory = () => {
+  return (
+    <Card className="strpied-tabled-with-hover">
+      <Card.Header>
+        <Card.Title as="h4">Purchase History</Card.Title>
+        <p className="card-category">List of customer purchases registered in the system</p>
+      </Card.Header>
+
+      <Card.Body className="table-full-width table-responsive px-4">
+>>>>>>> Stashed changes
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -63,7 +75,7 @@ const PurchaseHistory = () => {
             </tr>
           </tbody>
         </Table>
-      </div>
+      </Card.Body>
     </Card>
   )
 }
