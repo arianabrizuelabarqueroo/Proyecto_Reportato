@@ -75,8 +75,8 @@ function SupplierList() {
                           className="btn-fill pull-right"
                           type="submit"
                           style={{
-                            backgroundColor: "#7FAD39",
-                            borderColor: "#7FAD39",
+                            backgroundColor: "#F17C1D",
+                            borderColor: "#F17C1D",
                             color: "white",
                           }}
                         >
@@ -107,8 +107,8 @@ function SupplierList() {
                           className="btn-fill pull-right"
                           type="submit"
                           style={{
-                            backgroundColor: "#7FAD39",
-                            borderColor: "#7FAD39",
+                            backgroundColor: "#F17C1D",
+                            borderColor: "#F17C1D",
                             color: "white",
                           }}
                         >
@@ -139,8 +139,8 @@ function SupplierList() {
                           className="btn-fill pull-right"
                           type="submit"
                           style={{
-                            backgroundColor: "#7FAD39",
-                            borderColor: "#7FAD39",
+                            backgroundColor: "#F17C1D",
+                            borderColor: "#F17C1D",
                             color: "white",
                           }}
                         >
@@ -171,8 +171,8 @@ function SupplierList() {
                           className="btn-fill pull-right"
                           type="submit"
                           style={{
-                            backgroundColor: "#7FAD39",
-                            borderColor: "#7FAD39",
+                            backgroundColor: "#F17C1D",
+                            borderColor: "#F17C1D",
                             color: "white",
                           }}
                         >
@@ -203,8 +203,8 @@ function SupplierList() {
                           className="btn-fill pull-right"
                           type="submit"
                           style={{
-                            backgroundColor: "#7FAD39",
-                            borderColor: "#7FAD39",
+                            backgroundColor: "#F17C1D",
+                            borderColor: "#F17C1D",
                             color: "white",
                           }}
                         >
@@ -235,8 +235,8 @@ function SupplierList() {
                           className="btn-fill pull-right"
                           type="submit"
                           style={{
-                            backgroundColor: "#7FAD39",
-                            borderColor: "#7FAD39",
+                            backgroundColor: "#F17C1D",
+                            borderColor: "#F17C1D",
                             color: "white",
                           }}
                         >

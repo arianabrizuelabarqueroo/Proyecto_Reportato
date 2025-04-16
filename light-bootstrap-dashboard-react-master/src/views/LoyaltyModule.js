@@ -32,14 +32,17 @@ const LoyaltyModule = () => {
 
   const renderMenu = () => (
     <div className="container mt-4">
-      <h2 className="mb-4">Loyalty Program Module</h2>
+      <h2 className="mb-4">Modulo de Lealtad</h2>
       <Row>
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>Register Frequent Customer</Card.Title>
-              <Card.Text>Form to register recurring customers for tracking and loyalty benefits.</Card.Text>
-              <Button variant="primary" onClick={() => setScreen('register')}>Go to Form</Button>
+              <Card.Title>Registrar Cliente frecuente</Card.Title>
+              <Card.Text>Formulario para registrar clientes frecuentes y brindarles beneficios.</Card.Text>
+              <Button variant="primary" onClick={() => setScreen('register')} 
+                      style= {{backgroundColor: "#7FAD39",
+                      borderColor: "#7FAD39",
+                      color: "white"}}>Ir al Formulario</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -47,9 +50,12 @@ const LoyaltyModule = () => {
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>Purchase History</Card.Title>
-              <Card.Text>View detailed purchase records of a customer to personalize offers.</Card.Text>
-              <Button variant="primary" onClick={() => setScreen('history')}>View History</Button>
+              <Card.Title>Historial de compras</Card.Title>
+              <Card.Text>Ver de manera detallada el registro de compras de un cliente para personalizar ofertas.</Card.Text>
+              <Button variant="primary" onClick={() => setScreen('history')} 
+                      style= {{backgroundColor: "#7FAD39",
+                      borderColor: "#7FAD39",
+                      color: "white"}}>Ver el Historial</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -57,9 +63,12 @@ const LoyaltyModule = () => {
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>Frequent Customer Report</Card.Title>
-              <Card.Text>Generate reports based on loyalty program metrics.</Card.Text>
-              <Button variant="primary" onClick={() => setScreen('report')}>Generate Report</Button>
+              <Card.Title>Reporte de clientes frecuentes</Card.Title>
+              <Card.Text>Generar reportes basados en las metricas del programa de cliente frecuente.</Card.Text>
+              <Button variant="primary" onClick={() => setScreen('report')} 
+                      style= {{backgroundColor: "#7FAD39",
+                      borderColor: "#7FAD39",
+                      color: "white"}}>Generar reporte</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -67,9 +76,12 @@ const LoyaltyModule = () => {
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>Assign Loyalty Points</Card.Title>
-              <Card.Text>Assign points to customers after a successful purchase.</Card.Text>
-              <Button variant="primary" onClick={() => setScreen('assign')}>Assign Points</Button>
+              <Card.Title>Asignar puntos de Lealtad</Card.Title>
+              <Card.Text>Se asignan puntos de lealtad al cliente luego de una compra.</Card.Text>
+              <Button variant="primary" onClick={() => setScreen('assign')} 
+                      style= {{backgroundColor: "#7FAD39",
+                      borderColor: "#7FAD39",
+                      color: "white"}}>Asignar puntos</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -77,9 +89,12 @@ const LoyaltyModule = () => {
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>Check Loyalty Points</Card.Title>
-              <Card.Text>Consult current loyalty point balance of a customer.</Card.Text>
-              <Button variant="primary" onClick={() => setScreen('check')}>Check Points</Button>
+              <Card.Title>Ver puntos de lealtad</Card.Title>
+              <Card.Text>Consulta por los puntos de lealtad actuales del cliente.</Card.Text>
+              <Button variant="primary" onClick={() => setScreen('check')} 
+                      style= {{backgroundColor: "#7FAD39",
+                      borderColor: "#7FAD39",
+                      color: "white"}}>Verificar puntos</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -87,9 +102,12 @@ const LoyaltyModule = () => {
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>Apply Discount</Card.Title>
-              <Card.Text>Apply discount automatically based on available loyalty points.</Card.Text>
-              <Button variant="primary" onClick={() => setScreen('discount')}>Apply Discount</Button>
+              <Card.Title>Aplicar descuento</Card.Title>
+              <Card.Text>Aplica el descuento automaticamente basado en los puntos de lealtad habiles.</Card.Text>
+              <Button variant="primary" onClick={() => setScreen('discount')} 
+                      style= {{backgroundColor: "#7FAD39",
+                      borderColor: "#7FAD39",
+                      color: "white"}}>Aplicar descuento</Button>
             </Card.Body>
           </Card>
         </Col>
