@@ -10,19 +10,20 @@ const styles = {
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#3C763D",
+    color: "black",
     marginBottom: "0.2rem",
   },
   category: {
-    color: "#666",
+    color: "grey",
     fontSize: "0.9rem",
   },
   cardBody: {
     backgroundColor: "#FFFFFF",
   },
   btnSuccess: {
-    backgroundColor: "#3C763D",
-    borderColor: "#3C763D",
+    backgroundColor: "#7FAD39",
+    borderColor: "#7FAD39",
+    color: "white",
   },
 };
 
