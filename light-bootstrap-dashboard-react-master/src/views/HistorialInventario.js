@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Container, Row, Col, Table, Form } from "react-bootstrap";
+import { Card, Container, Row, Col, Table, Form, Button } from "react-bootstrap";
 
 const styles = {
   header: {
@@ -10,15 +10,22 @@ const styles = {
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#3C763D",
+    color: "black",
     marginBottom: "0.2rem",
   },
   category: {
-    color: "#666",
+    color: "gray",
     fontSize: "0.9rem",
   },
   cardBody: {
     backgroundColor: "#FFFFFF",
+  },
+  button: {
+    backgroundColor: "#7FAD39",
+    borderColor: "#7FAD39",
+    color: "white",
+    marginRight: "0.5rem",
+    marginBottom: "0.5rem",
   },
 };
 
@@ -30,16 +37,19 @@ function HistorialInventario() {
           <Card>
             <div style={styles.header}>
               <h4 style={styles.title}>Historial de Inventario</h4>
-              <p style={styles.category}>Registro completo de movimientos</p>
+              <p style={styles.category}>Registro completo de movimientos de entrada y salida de productos</p>
             </div>
             <Card.Body style={styles.cardBody}>
-              <Form.Group>
+              <div className="mb-3 d-flex flex-wrap align-items-center justify-content-between">
                 <Form.Control
                   type="text"
                   placeholder="Buscar producto o fecha..."
-                  className="mb-3"
+                  className="mb-2"
+                  style={{ maxWidth: "300px" }}
                 />
-              </Form.Group>
+              </div>
+
+              {/* Tabla */}
               <Table className="table-hover">
                 <thead>
                   <tr>
@@ -47,6 +57,7 @@ function HistorialInventario() {
                     <th>Producto</th>
                     <th>Tipo</th>
                     <th>Cantidad</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -55,6 +66,10 @@ function HistorialInventario() {
                     <td>Producto A</td>
                     <td>Entrada</td>
                     <td>50</td>
+                    <td>
+                      <Button style={styles.button} size="sm">Modificar</Button>
+                      <Button style={styles.button} size="sm">Eliminar</Button>
+                    </td>
                   </tr>
                 </tbody>
               </Table>

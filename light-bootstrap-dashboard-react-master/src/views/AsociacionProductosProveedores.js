@@ -10,19 +10,20 @@ const styles = {
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#3C763D",
+    color: "black",
     marginBottom: "0.2rem",
   },
   category: {
-    color: "#666",
+    color: "gray",
     fontSize: "0.9rem",
   },
   cardBody: {
     backgroundColor: "#FFFFFF",
   },
   btnSuccess: {
-    backgroundColor: "#3C763D",
-    borderColor: "#3C763D",
+    backgroundColor: "#7FAD39",
+    borderColor: "white",
+    color: "white",
   },
 };
 
@@ -58,7 +59,7 @@ function AsociacionProductosProveedores() {
                     </Form.Group>
                   </Col>
                 </Row>
-                <Button style={styles.btnSuccess} className="mt-3">
+                <Button style={styles.btnSuccess} className="mt-4">
                   Asociar
                 </Button>
               </Form>

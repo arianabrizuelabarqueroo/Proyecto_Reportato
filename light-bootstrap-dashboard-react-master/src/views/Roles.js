@@ -1,4 +1,5 @@
 import React from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import {
   Button,
   Card,
@@ -11,31 +12,30 @@ import {
   FormControl
 } from "react-bootstrap";
 
-// Estilos personalizados
 const styles = {
   header: {
-    backgroundColor: "#373737",
-    color: "#FFFFFF",
+    backgroundColor: "white",
+    color: "grey",
     padding: "1rem",
     borderTopLeftRadius: "0.5rem",
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#F17C1D",
+    color: "black",
     marginBottom: "0.2rem",
   },
   cardBody: {
     backgroundColor: "#FFFFFF",
   },
   btnPrimary: {
-    backgroundColor: "#F17C1D",
-    borderColor: "#F17C1D",
-    color: "#FFFFFF"
+    backgroundColor: "#7FAD39",
+    borderColor: "#7FAD39",
+    color: "white"
   },
   btnSecondary: {
-    backgroundColor: "#8C8D8D",
-    borderColor: "#8C8D8D",
-    color: "#FFFFFF"
+    backgroundColor: "grey",
+    borderColor: "grey",
+    color: "white",
   },
   btnWarning: {
     backgroundColor: "#7FAD39",
@@ -46,57 +46,71 @@ const styles = {
 
 function Usuarios() {
   return (
-    <Container fluid>
-      <Row>
-        {/* Permisos por Rol */}
-        <Col md="6">
-          <Card>
+    <Container fluid className="p-4">
+      <Row className="g-4">
+        {/* Asignar Permisos */}
+        <Col md={4}>
+          <Card className="shadow-sm rounded">
             <div style={styles.header}>
-              <h4 style={styles.title}>Asignar Permisos por Rol</h4>
+              <h5 style={styles.title}>Asignar Permisos por Rol</h5>
             </div>
             <Card.Body style={styles.cardBody}>
               <Form>
-                <Form.Group>
-                  <label>Seleccionar Rol</label>
+                <Form.Group className="mb-3">
+                  <Form.Label>Seleccionar Rol</Form.Label>
                   <Form.Control as="select">
                     <option>Administrador</option>
                     <option>Usuario</option>
                     <option>Invitado</option>
                   </Form.Control>
                 </Form.Group>
-                <Form.Group>
-                  <label>Permisos</label>
+                <Form.Group className="mb-3">
+                  <br></br>
+                  <Form.Label>Permisos</Form.Label>
                   <div>
                     <Form.Check type="checkbox" label="Ver Reportes" />
                     <Form.Check type="checkbox" label="Editar Usuarios" />
                     <Form.Check type="checkbox" label="Eliminar Datos" />
                   </div>
                 </Form.Group>
-                <Button
-                  className="btn-fill mt-3"
-                  style={styles.btnSecondary}
-                >
-                  Guardar Permisos
-                </Button>
+                <br></br>
+                <div className="d-flex">
+                  <Button
+                    size="sm"
+                    style={styles.btnSecondary}
+                  >
+                    Guardar Permisos
+                  </Button>
+                </div>
               </Form>
             </Card.Body>
           </Card>
         </Col>
-      </Row>
 
-      {/* Listado de Usuarios */}
-      <Row className="mt-4">
-        <Col md="12">
-          <Card>
+        {/* Tabla de usuarios */}
+        <Col md={8}>
+          <Card className="shadow-sm rounded">
             <div style={styles.header}>
-              <h4 style={styles.title}>Listado de Usuarios</h4>
-              <InputGroup className="mb-3 mt-3">
-                <FormControl placeholder="Buscar usuario..." />
-                <Button variant="outline-light">Buscar</Button>
-              </InputGroup>
+              <h5 style={styles.title}>Listado de Usuarios</h5>
+              <div className="my-3">
+                <Row className="g-2">
+                  <Col xs={8}>
+                  <Form.Control placeholder="Buscar usuario..." />
+                  </Col>
+                  <Col xs="auto">
+                  <Button
+                  variant="outline-warning"
+                  className="w-100"
+                  style={{ backgroundColor: "#7FAD39", color: "white" }}>
+                    Buscar
+                    </Button>
+                    </Col>
+                    </Row>
+                    </div>
+
             </div>
             <Card.Body style={styles.cardBody}>
-              <Table striped bordered hover responsive>
+              <Table striped bordered hover responsive size="sm" style={{ fontSize: "0.9rem" }}>
                 <thead>
                   <tr>
                     <th>Nombre</th>
@@ -115,17 +129,53 @@ function Usuarios() {
                     <td>Administrador</td>
                     <td>Activo</td>
                     <td>
-                      <Button
-                        size="sm"
-                        style={styles.btnWarning}
-                        className="me-2"
-                      >
-                        Editar
-                      </Button>
-                      <Button size="sm" style={styles.btnSecondary}>
-                        Desactivar
-                      </Button>
-                    </td>
+                      <div className="d-flex" style={{ gap: '0.5rem' }}>
+                        <Button size="sm" style={styles.btnWarning}>
+                          Editar
+                          </Button>
+                          <Button size="sm" style={styles.btnSecondary}>
+                            Desactivar
+                            </Button>
+                            </div>
+                            </td>
+                  </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <td>Juan Pérez</td>
+                    <td>jperez</td>
+                    <td>juan@correo.com</td>
+                    <td>Usuario</td>
+                    <td>Desactivado</td>
+                    <td>
+                      <div className="d-flex" style={{ gap: '0.5rem' }}>
+                        <Button size="sm" style={styles.btnWarning}>
+                          Editar
+                          </Button>
+                          <Button size="sm" style={styles.btnSecondary}>
+                            Desactivar
+                            </Button>
+                            </div>
+                            </td>
+                  </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <td>Juan Pérez</td>
+                    <td>jperez</td>
+                    <td>juan@correo.com</td>
+                    <td>Invitado</td>
+                    <td>Activo</td>
+                    <td>
+                      <div className="d-flex" style={{ gap: '0.5rem' }}>
+                        <Button size="sm" style={styles.btnWarning}>
+                          Editar
+                          </Button>
+                          <Button size="sm" style={styles.btnSecondary}>
+                            Desactivar
+                            </Button>
+                            </div>
+                            </td>
                   </tr>
                 </tbody>
               </Table>

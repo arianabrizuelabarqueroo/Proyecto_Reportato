@@ -6,36 +6,32 @@ import {
   Container,
   Row,
   Col,
-  Table,
-  InputGroup,
-  FormControl
 } from "react-bootstrap";
 
-// Estilos personalizados
 const styles = {
   header: {
-    backgroundColor: "#373737",
+    backgroundColor: "white",
     color: "#FFFFFF",
     padding: "1rem",
     borderTopLeftRadius: "0.5rem",
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#F17C1D",
+    color: "black",
     marginBottom: "0.2rem",
   },
   cardBody: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "white",
   },
   btnPrimary: {
-    backgroundColor: "#F17C1D",
-    borderColor: "#F17C1D",
-    color: "#FFFFFF"
+    backgroundColor: "#7FAD39",
+    borderColor: "#7FAD39",
+    color: "white"
   },
   btnSecondary: {
     backgroundColor: "#8C8D8D",
     borderColor: "#8C8D8D",
-    color: "#FFFFFF"
+    color: "white"
   },
   btnWarning: {
     backgroundColor: "#7FAD39",
@@ -57,30 +53,20 @@ function Usuarios() {
               <Card.Body style={styles.cardBody}>
                 <Form>
                   <Row>
-                    <Col className="pr-1" md="5">
+                    <Col className="px-3" md="6">
                       <Form.Group>
-                        <label>Company (disabled)</label>
+                        <label>Usuario</label>
                         <Form.Control
-                          disabled
-                          placeholder="Company"
+                          placeholder="Usuario"
                           type="text"
                         ></Form.Control>
                       </Form.Group>
                     </Col>
-                    <Col className="px-1" md="3">
+                    <Col className="pl-1" md="6">
                       <Form.Group>
-                        <label>Username</label>
+                        <label>Correo Electrónico</label>
                         <Form.Control
-                          placeholder="Username"
-                          type="text"
-                        ></Form.Control>
-                      </Form.Group>
-                    </Col>
-                    <Col className="pl-1" md="4">
-                      <Form.Group>
-                        <label>Email address</label>
-                        <Form.Control
-                          placeholder="Email"
+                          placeholder="Correo electrónico"
                           type="email"
                         ></Form.Control>
                       </Form.Group>
@@ -89,18 +75,18 @@ function Usuarios() {
                   <Row>
                     <Col className="pr-1" md="6">
                       <Form.Group>
-                        <label>First Name</label>
+                        <label>Nombre</label>
                         <Form.Control
-                          placeholder="First Name"
+                          placeholder="Nombre"
                           type="text"
                         ></Form.Control>
                       </Form.Group>
                     </Col>
                     <Col className="pl-1" md="6">
                       <Form.Group>
-                        <label>Last Name</label>
+                        <label>Apellido</label>
                         <Form.Control
-                          placeholder="Last Name"
+                          placeholder="Apellido"
                           type="text"
                         ></Form.Control>
                       </Form.Group>
@@ -109,9 +95,9 @@ function Usuarios() {
                   <Row>
                     <Col md="12">
                       <Form.Group>
-                        <label>Address</label>
+                        <label>Dirección</label>
                         <Form.Control
-                          placeholder="Home Address"
+                          placeholder="Dirección de domicilio"
                           type="text"
                         ></Form.Control>
                       </Form.Group>
@@ -120,27 +106,27 @@ function Usuarios() {
                   <Row>
                     <Col className="pr-1" md="4">
                       <Form.Group>
-                        <label>City</label>
+                        <label>Ciudad</label>
                         <Form.Control
-                          placeholder="City"
+                          placeholder="Ciudad"
                           type="text"
                         ></Form.Control>
                       </Form.Group>
                     </Col>
                     <Col className="px-1" md="4">
                       <Form.Group>
-                        <label>Country</label>
+                        <label>País</label>
                         <Form.Control
-                          placeholder="Country"
+                          placeholder="País"
                           type="text"
                         ></Form.Control>
                       </Form.Group>
                     </Col>
                     <Col className="pl-1" md="4">
                       <Form.Group>
-                        <label>Postal Code</label>
+                        <label>Código Postal</label>
                         <Form.Control
-                          placeholder="ZIP Code"
+                          placeholder="Código Postal"
                           type="number"
                         ></Form.Control>
                       </Form.Group>
@@ -149,10 +135,10 @@ function Usuarios() {
                   <Row>
                     <Col md="12">
                       <Form.Group>
-                        <label>About Me</label>
+                        <label>Acerca de mí</label>
                         <Form.Control
                           cols="80"
-                          placeholder="Here can be your description"
+                          placeholder="Aquí puedes escribir tu descripción"
                           rows="4"
                           as="textarea"
                         ></Form.Control>
@@ -164,7 +150,7 @@ function Usuarios() {
                     style={styles.btnPrimary}
                     type="submit"
                   >
-                    Update Profile
+                    Actualizar Perfil
                   </Button>
                   <div className="clearfix"></div>
                 </Form>
@@ -176,7 +162,7 @@ function Usuarios() {
               <div className="card-image">
                 <img
                   alt="..."
-                  src={require("assets/img/photo-1431578500526-4d9613015464.jpeg")}
+                  src={require("assets/img/background.jpg")}
                 ></img>
               </div>
               <Card.Body>
@@ -185,14 +171,14 @@ function Usuarios() {
                     <img
                       alt="..."
                       className="avatar border-gray"
-                      src={require("assets/img/faces/face-3.jpg")}
+                      src={require("assets/img/perfilIcon.jpg")}
                     ></img>
-                    <h5 className="title">Mike Andrew</h5>
+                    <h5 className="title">Nombre Apellido</h5>
                   </a>
-                  <p className="description">michael24</p>
+                  <p className="description">usuario</p>
                 </div>
                 <p className="description text-center">
-                  Descripcion
+                  Descripción del perfil o breve biografía.
                 </p>
               </Card.Body>
               <hr></hr>

@@ -10,19 +10,20 @@ const styles = {
     borderTopRightRadius: "0.5rem",
   },
   title: {
-    color: "#3C763D",
+    color: "black",
     marginBottom: "0.2rem",
   },
   category: {
-    color: "#666",
+    color: "grey",
     fontSize: "0.9rem",
   },
   cardBody: {
     backgroundColor: "#FFFFFF",
   },
   btnPrimary: {
-    backgroundColor: "#3C763D",
-    borderColor: "#3C763D",
+    backgroundColor: "#7FAD39",
+    borderColor: "#7FAD39",
+    color: "white",
   },
 };
 
@@ -64,7 +65,9 @@ function RegistroProductos() {
                   Registrar Producto
                 </Button>
               </Form>
+              <br></br>
               <hr />
+              <br></br>
               <h5>Historial de Productos Recibidos</h5>
               <Table className="table-hover table-striped">
                 <thead>
