@@ -53,72 +53,6 @@ function Header() {
         </Navbar.Toggle>
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="nav mr-auto" navbar>
-            <Nav.Item>
-              <Nav.Link
-                data-toggle="dropdown"
-                href="#pablo"
-                onClick={(e) => e.preventDefault()}
-                className="m-0"
-              >
-                <i className="nc-icon nc-palette"></i>
-                <span className="d-lg-none ml-1">Dashboard</span>
-              </Nav.Link>
-            </Nav.Item>
-            <Dropdown as={Nav.Item}>
-              <Dropdown.Toggle
-                as={Nav.Link}
-                data-toggle="dropdown"
-                id="dropdown-67443507"
-                variant="default"
-                className="m-0"
-              >
-                <i className="nc-icon nc-planet"></i>
-                <span className="notification">5</span>
-                <span className="d-lg-none ml-1">Notification</span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notificacion 1
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notificacion 2
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notificacion 3
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notificacion 4
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Otra Notificacion
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Nav.Item>
-              <Nav.Link
-                className="m-0"
-                href="#pablo"
-                onClick={(e) => e.preventDefault()}
-              >
-                <i className="nc-icon nc-zoom-split"></i>
-                <span className="d-lg-block"><a style={{padding: "10px"}}> Busqueda </a></span>
-              </Nav.Link>
-            </Nav.Item>
           </Nav>
           <Nav className="ml-auto" navbar>
             <Nav.Item>
@@ -130,52 +64,6 @@ function Header() {
                 <span className="no-icon">Cuenta</span>
               </Nav.Link>
             </Nav.Item>
-            <Dropdown as={Nav.Item}>
-              <Dropdown.Toggle
-                aria-expanded={false}
-                aria-haspopup={true}
-                as={Nav.Link}
-                data-toggle="dropdown"
-                id="navbarDropdownMenuLink"
-                variant="default"
-                className="m-0"
-              >
-                <span className="no-icon">Lista</span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu aria-labelledby="navbarDropdownMenuLink">
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Accion
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Otra Accion
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Accion 1
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Accion 2
-                </Dropdown.Item>
-                <div className="divider"></div>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Enlace separado
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
             <Nav.Item>
               <Nav.Link
                 className="m-0"

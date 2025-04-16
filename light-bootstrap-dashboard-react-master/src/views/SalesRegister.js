@@ -1,316 +1,507 @@
-import React from "react";
-
-// react-bootstrap components
-import {
-  Badge,
-  Button,
-  Card,
-  Navbar,
-  Nav,
-  Table,
-  Container,
-  Row,
-  Col,
-  Form
-} from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Card, Table, Container, Row, Col, Form } from "react-bootstrap";
 
 function SalesRegister() {
-  return (
+  const [view, setView] = useState("home");
+
+  // Simula navegación
+  const goTo = (page) => setView(page);
+
+  const HomeView = () => (
+    <Row>
+      <Col md="4">
+        <Card className="text-center">
+          <Card.Body>
+            <div className="mb-3">
+              <i className="nc-icon nc-circle-09" style={{ fontSize: "3rem", color: "#7FAD39" }}></i>
+            </div>
+            <Card.Title as="h4">Registrar Nuevo Cliente</Card.Title>
+            <Card.Text style={{ color: "#6c757d" }}>
+              Agrega nuevos clientes para tus ventas fácilmente.
+            </Card.Text>
+            <Button
+              className="btn-fill pull-right"
+              onClick={() => goTo("cliente")}
+              style={{
+                backgroundColor: "#7FAD39",
+                borderColor: "#7FAD39",
+                color: "white",
+              }}
+            >
+              Registrar Cliente
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      <Col md="4">
+        <Card className="text-center">
+          <Card.Body>
+            <div className="mb-3">
+              <i className="nc-icon nc-paper-2" style={{ fontSize: "3rem", color: "#7FAD39" }}></i>
+            </div>
+            <Card.Title as="h4">Generador de Facturas</Card.Title>
+            <Card.Text style={{ color: "#6c757d" }}>
+              Crea facturas personalizadas de forma rápida y segura.
+            </Card.Text>
+            <Button
+              className="btn-fill pull-right"
+              onClick={() => goTo("factura")}
+              style={{
+                backgroundColor: "#7FAD39",
+                borderColor: "#7FAD39",
+                color: "white",
+              }}
+            >
+              Generar Factura
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      <Col md="4">
+        <Card className="text-center">
+          <Card.Body>
+            <div className="mb-3">
+              <i className="nc-icon nc-bag" style={{ fontSize: "3rem", color: "#7FAD39" }}></i>
+            </div>
+            <Card.Title as="h4">Registrar Venta</Card.Title>
+            <Card.Text style={{ color: "#6c757d" }}>
+              Añade una nueva venta con todos los detalles del cliente.
+            </Card.Text>
+            <Button
+              className="btn-fill pull-right"
+              onClick={() => goTo("venta")}
+              style={{
+                backgroundColor: "#7FAD39",
+                borderColor: "#7FAD39",
+                color: "white",
+              }}
+            >
+              Registrar Venta
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
+  );
+
+  const ClienteView = () => (
     <>
-      <Container fluid>
-        <Row className="mb-4">
-          <Col lg="12">
-            <Card>
-              <Card.Header>
-                <Card.Title as="h4">Sales Management System</Card.Title>
-                <p className="card-category">
-                  Complete sales transactions and manage customer information
-                </p>
-              </Card.Header>
-              <Card.Body>
-                <Row>
-                  <Col md="3">
-                    <Card className="text-center p-3">
-                      <div className="mb-3 text-primary">
-                        <i className="nc-icon nc-cart-simple" style={{ fontSize: '3rem' }}></i>
-                      </div>
-                      <h5>Register Sale</h5>
-                      <p className="small">Record daily transactions</p>
-                      <Button variant="primary" block>
-                        New Sale
-                      </Button>
-                    </Card>
-                  </Col>
-                  <Col md="3">
-                    <Card className="text-center p-3">
-                      <div className="mb-3 text-info">
-                        <i className="nc-icon nc-credit-card" style={{ fontSize: '3rem' }}></i>
-                      </div>
-                      <h5>Payment Methods</h5>
-                      <p className="small">Complete transactions</p>
-                      <Button variant="info" block>
-                        Process Payment
-                      </Button>
-                    </Card>
-                  </Col>
-                  <Col md="3">
-                    <Card className="text-center p-3">
-                      <div className="mb-3 text-success">
-                        <i className="nc-icon nc-single-02" style={{ fontSize: '3rem' }}></i>
-                      </div>
-                      <h5>Customer Registry</h5>
-                      <p className="small">Manage recurring customers</p>
-                      <Button variant="success" block>
-                        Customer Portal
-                      </Button>
-                    </Card>
-                  </Col>
-                  <Col md="3">
-                    <Card className="text-center p-3">
-                      <div className="mb-3 text-warning">
-                        <i className="nc-icon nc-paper-2" style={{ fontSize: '3rem' }}></i>
-                      </div>
-                      <h5>Invoice Generator</h5>
-                      <p className="small">Create customer receipts</p>
-                      <Button variant="warning" block>
-                        Generate Invoice
-                      </Button>
-                    </Card>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col lg="8">
-            <Card className="strpied-tabled-with-hover">
-              <Card.Header>
-                <Card.Title as="h4">Sales History</Card.Title>
-                <p className="card-category">
-                  Review and analyze commercial performance
-                </p>
-                <Form.Group className="mt-3">
-                  <div className="input-group">
-                    <Form.Control
-                      placeholder="Search transactions..."
-                      aria-label="Search"
-                    />
-                    <div className="input-group-append">
-                      <Button variant="outline-primary">Search</Button>
-                    </div>
-                  </div>
+      <Card>
+        <Card.Header>
+          <Card.Title as="h4">Formulario Registro Cliente</Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <Form>
+            <Row>
+              <Col md="6">
+                <Form.Group controlId="formClientName">
+                  <Form.Label>Nombre Completo</Form.Label>
+                  <Form.Control type="text" placeholder="Ingresa el nombre completo" />
                 </Form.Group>
-              </Card.Header>
-              <Card.Body className="table-full-width table-responsive px-0">
-                <Table className="table-hover table-striped">
-                  <thead>
-                    <tr>
-                      <th className="border-0">ID</th>
-                      <th className="border-0">Date</th>
-                      <th className="border-0">Customer</th>
-                      <th className="border-0">Amount</th>
-                      <th className="border-0">Payment Method</th>
-                      <th className="border-0">Status</th>
-                      <th className="border-0">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>S-001</td>
-                      <td>04/09/2025</td>
-                      <td>Dakota Rice</td>
-                      <td>$136.75</td>
-                      <td>Credit Card</td>
-                      <td><Badge variant="success">Completed</Badge></td>
-                      <td>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-zoom-split"></i>
-                        </Button>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-paper"></i>
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>S-002</td>
-                      <td>04/09/2025</td>
-                      <td>Minerva Hooper</td>
-                      <td>$321.89</td>
-                      <td>Cash</td>
-                      <td><Badge variant="success">Completed</Badge></td>
-                      <td>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-zoom-split"></i>
-                        </Button>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-paper"></i>
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>S-003</td>
-                      <td>04/08/2025</td>
-                      <td>Sage Rodriguez</td>
-                      <td>$56.42</td>
-                      <td>Debit Card</td>
-                      <td><Badge variant="success">Completed</Badge></td>
-                      <td>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-zoom-split"></i>
-                        </Button>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-paper"></i>
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>S-004</td>
-                      <td>04/08/2025</td>
-                      <td>Philip Chaney</td>
-                      <td>$98.35</td>
-                      <td>Mobile Payment</td>
-                      <td><Badge variant="warning">Pending</Badge></td>
-                      <td>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-zoom-split"></i>
-                        </Button>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-paper"></i>
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>S-005</td>
-                      <td>04/07/2025</td>
-                      <td>Doris Greene</td>
-                      <td>$63.54</td>
-                      <td>Credit Card</td>
-                      <td><Badge variant="success">Completed</Badge></td>
-                      <td>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-zoom-split"></i>
-                        </Button>
-                        <Button variant="link" size="sm">
-                          <i className="nc-icon nc-paper"></i>
-                        </Button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Card.Body>
-              <Card.Footer>
-                <div className="d-flex justify-content-center">
-                  <Button variant="outline-primary" size="sm" className="mr-2">
-                    Previous
-                  </Button>
-                  <Button variant="outline-primary" size="sm">
-                    Next
-                  </Button>
-                </div>
-              </Card.Footer>
-            </Card>
-          </Col>
+              </Col>
+              <Col md="6">
+                <Form.Group controlId="formClientEmail">
+                  <Form.Label>Correo Electrónico</Form.Label>
+                  <Form.Control type="email" placeholder="Ingresa el correo electrónico" />
+                </Form.Group>
+              </Col>
+            </Row>
 
-          <Col lg="4">
-            <Card>
-              <Card.Header>
-                <Card.Title as="h4">Register Close</Card.Title>
-                <p className="card-category">Daily cash reconciliation</p>
-              </Card.Header>
-              <Card.Body>
-                <Form>
-                  <Form.Group>
-                    <Form.Label>Date</Form.Label>
-                    <Form.Control type="date" defaultValue="2025-04-09" />
-                  </Form.Group>
-                  
-                  <Form.Group>
-                    <Form.Label>Cash in Register</Form.Label>
-                    <div className="input-group">
-                      <div className="input-group-prepend">
-                        <span className="input-group-text">$</span>
-                      </div>
-                      <Form.Control type="number" placeholder="0.00" />
-                    </div>
-                  </Form.Group>
-
-                  <Form.Group>
-                    <Form.Label>Expected Amount</Form.Label>
-                    <div className="input-group">
-                      <div className="input-group-prepend">
-                        <span className="input-group-text">$</span>
-                      </div>
-                      <Form.Control type="number" placeholder="0.00" readOnly defaultValue="675.95" />
-                    </div>
-                  </Form.Group>
-
-                  <Form.Group>
-                    <Form.Label>Difference</Form.Label>
-                    <div className="input-group">
-                      <div className="input-group-prepend">
-                        <span className="input-group-text">$</span>
-                      </div>
-                      <Form.Control type="number" placeholder="0.00" readOnly />
-                    </div>
-                  </Form.Group>
-
-                  <Form.Group>
-                    <Form.Label>Notes</Form.Label>
-                    <Form.Control as="textarea" rows={3} placeholder="Add any relevant notes about today's register close..." />
-                  </Form.Group>
-
-                  <Button variant="danger" block>
-                    Close Register
-                  </Button>
-                </Form>
-              </Card.Body>
-            </Card>
-            
-            <Card className="mt-4">
-              <Card.Header>
-                <Card.Title as="h4">Daily Summary</Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <Row>
-                  <Col xs="6">
-                    <div className="text-center">
-                      <h6>Total Sales</h6>
-                      <h3>$675.95</h3>
-                    </div>
-                  </Col>
-                  <Col xs="6">
-                    <div className="text-center">
-                      <h6>Transactions</h6>
-                      <h3>15</h3>
-                    </div>
-                  </Col>
-                </Row>
-                <hr />
-                <h6>Payment Methods</h6>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Cash</span>
-                  <span>$321.89</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Credit Card</span>
-                  <span>$200.29</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Debit Card</span>
-                  <span>$56.42</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Mobile Payment</span>
-                  <span>$97.35</span>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
+            <Row>
+              <Col md="6">
+                <Form.Group controlId="formClientPhone">
+                  <Form.Label>Teléfono</Form.Label>
+                  <Form.Control type="text" placeholder="Ingresa el número de teléfono" />
+                </Form.Group>
+              </Col>
+              <Col md="6">
+                <Form.Group controlId="formClientAddress">
+                  <Form.Label>Dirección</Form.Label>
+                  <Form.Control type="text" placeholder="Ingresa la dirección del cliente" />
+                </Form.Group>
+              </Col>
+            </Row>
+            <br></br>
+            <Button
+              className="btn-fill pull-right"
+              type="submit"
+              style={{
+                backgroundColor: "#7FAD39",
+                borderColor: "#7FAD39",
+                color: "white",
+              }}
+            >
+              Registrar Cliente
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={() => goTo("home")} 
+              className="pull-right"
+              style={{ marginRight: "10px" }}
+            >
+              Volver
+            </Button>
+            <div className="clearfix"></div>
+          </Form>
+        </Card.Body>
+      </Card>
     </>
+  );
+
+  const FacturaView = () => (
+    <>
+      <Card>
+        <Card.Header>
+          <Card.Title as="h4">Generar Factura</Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <Form>
+            <Row>
+              <Col md="6">
+                <Form.Group controlId="formFacturaClient">
+                  <Form.Label>Seleccionar Cliente</Form.Label>
+                  <Form.Control as="select">
+                    <option>Selecciona un cliente</option>
+                    <option>María Pérez</option>
+                    <option>Carlos Rojas</option>
+                    <option>Ana Jiménez</option>
+                    <option>Jorge Gutiérrez</option>
+                    <option>Lucía Mora</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md="6">
+                <Form.Group controlId="formFacturaTotal">
+                  <Form.Label>Total</Form.Label>
+                  <Form.Control type="number" placeholder="Monto total de la factura" />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group controlId="formFacturaItems">
+              <Form.Label>Productos</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Ingresa los productos vendidos" />
+            </Form.Group>
+            <br></br>
+            <Button
+              className="btn-fill pull-right"
+              type="submit"
+              style={{
+                backgroundColor: "#7FAD39",
+                borderColor: "#7FAD39",
+                color: "white",
+              }}
+            >
+              Generar Factura
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={() => goTo("home")} 
+              className="pull-right"
+              style={{ marginRight: "10px" }}
+            >
+              Volver
+            </Button>
+            <div className="clearfix"></div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </>
+  );
+
+  const VentaView = () => (
+    <>
+      <Card>
+        <Card.Header>
+          <Card.Title as="h4">Registrar Venta</Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <Form>
+            <Row>
+              <Col md="6">
+                <Form.Group controlId="formVentaClient">
+                  <Form.Label>Seleccionar Cliente</Form.Label>
+                  <Form.Control as="select">
+                    <option>Selecciona un cliente</option>
+                    <option>María Pérez</option>
+                    <option>Carlos Rojas</option>
+                    <option>Ana Jiménez</option>
+                    <option>Jorge Gutiérrez</option>
+                    <option>Lucía Mora</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md="6">
+                <Form.Group controlId="formVentaTotal">
+                  <Form.Label>Total</Form.Label>
+                  <Form.Control type="number" placeholder="Monto total de la venta" />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group controlId="formVentaItems">
+              <Form.Label>Productos</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Ingresa los productos vendidos" />
+            </Form.Group>
+
+            <Row>
+              <Col md="6">
+                <Form.Group controlId="formVentaMetodoPago">
+                  <Form.Label>Método de Pago</Form.Label>
+                  <Form.Control as="select">
+                    <option>Efectivo</option>
+                    <option>Tarjeta</option>
+                    <option>Sinpe</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+            </Row>
+            <br></br>
+            <Button
+              className="btn-fill pull-right"
+              type="submit"
+              style={{
+                backgroundColor: "#7FAD39",
+                borderColor: "#7FAD39",
+                color: "white",
+              }}
+            >
+              Registrar Venta
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={() => goTo("home")} 
+              className="pull-right"
+              style={{ marginRight: "10px" }}
+            >
+              Volver
+            </Button>
+            <div className="clearfix"></div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </>
+  );
+
+  return (
+    <Container fluid>
+      {view === "home" && (
+        <>
+          {HomeView()}
+
+          <Row>
+            {/* Historial de Ventas */}
+            <Col md="12">
+              <Card className="strpied-tabled-with-hover">
+                <Card.Header>
+                  <Card.Title as="h4">Historial de Ventas</Card.Title>
+                  <p className="card-category">
+                    Registro de todas las ventas realizadas
+                    <Button
+                      className="btn-fill pull-right"
+                      onClick={() => goTo("venta")}
+                      style={{
+                        backgroundColor: "#7FAD39",
+                        borderColor: "#7FAD39",
+                        color: "white",
+                        marginLeft: "15px",
+                      }}
+                    >
+                      Registrar nueva venta
+                    </Button>
+                  </p>
+                </Card.Header>
+                <Card.Body className="table-full-width table-responsive px-0">
+                  <Table className="table-hover table-striped">
+                    <thead>
+                      <tr>
+                        <th>Factura</th>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Total</th>
+                        <th>Fecha</th>
+                        <th>Método de Pago</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>F00123</td>
+                        <td>María Pérez</td>
+                        <td>3 kg papas, 1 sandía</td>
+                        <td>₡4,500</td>
+                        <td>2025-04-15</td>
+                        <td>Efectivo</td>
+                      </tr>
+                      <tr>
+                        <td>F00124</td>
+                        <td>Carlos Rojas</td>
+                        <td>2 kg tomates, 5 chayotes</td>
+                        <td>₡3,800</td>
+                        <td>2025-04-15</td>
+                        <td>Tarjeta</td>
+                      </tr>
+                      <tr>
+                        <td>F00125</td>
+                        <td>Ana Jiménez</td>
+                        <td>10 kg naranjas, 2 piñas</td>
+                        <td>₡8,200</td>
+                        <td>2025-04-15</td>
+                        <td>Sinpe</td>
+                      </tr>
+                      <tr>
+                        <td>F00126</td>
+                        <td>Jorge Gutiérrez</td>
+                        <td>1 kg frijoles, 2 kg arroz</td>
+                        <td>₡3,500</td>
+                        <td>2025-04-15</td>
+                        <td>Efectivo</td>
+                      </tr>
+                      <tr>
+                        <td>F00127</td>
+                        <td>Lucía Mora</td>
+                        <td>3 lechugas, 4 zanahorias</td>
+                        <td>₡5,000</td>
+                        <td>2025-04-15</td>
+                        <td>Tarjeta</td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            {/* Cierre de Caja */}
+            <Col md="12">
+              <Card>
+                <Card.Header>
+                  <Card.Title as="h4">Cierre de Caja</Card.Title>
+                  <p className="card-category">
+                    Detalle del cierre de caja del día
+                    <Button
+                      className="btn-fill pull-right"
+                      onClick={() => alert("Caja cerrada correctamente.")}
+                      style={{
+                        backgroundColor: "#7FAD39",
+                        borderColor: "#7FAD39",
+                        color: "white",
+                        marginLeft: "15px",
+                      }}
+                    >
+                      Cerrar Caja
+                    </Button>
+                  </p>
+                </Card.Header>
+                <Card.Body className="table-full-width table-responsive px-0">
+                  <Table className="table-hover table-striped">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Ventas Totales</th>
+                        <th>Efectivo</th>
+                        <th>Tarjeta</th>
+                        <th>Sinpe</th>
+                        <th>Diferencia</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>2025-04-15</td>
+                        <td>₡25,000</td>
+                        <td>₡10,000</td>
+                        <td>₡8,000</td>
+                        <td>₡7,000</td>
+                        <td>₡0</td>
+                      </tr>
+                      <tr>
+                        <td>2025-04-14</td>
+                        <td>₡32,500</td>
+                        <td>₡15,700</td>
+                        <td>₡9,800</td>
+                        <td>₡7,000</td>
+                        <td>₡0</td>
+                      </tr>
+                      <tr>
+                        <td>2025-04-13</td>
+                        <td>₡18,900</td>
+                        <td>₡8,900</td>
+                        <td>₡6,000</td>
+                        <td>₡4,000</td>
+                        <td>₡0</td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            {/* Resumen Diario */}
+            <Col md="12">
+              <Card>
+                <Card.Header>
+                  <Card.Title as="h4">Resumen Diario</Card.Title>
+                </Card.Header>
+                <Card.Body className="table-full-width table-responsive px-0">
+                  <Table className="table-hover table-striped">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Ventas</th>
+                        <th>Clientes Atendidos</th>
+                        <th>Producto Más Vendido</th>
+                        <th>Hora Pico</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>2025-04-15</td>
+                        <td>₡25,000</td>
+                        <td>17</td>
+                        <td>Papas</td>
+                        <td>5:30 PM</td>
+                      </tr>
+                      <tr>
+                        <td>2025-04-14</td>
+                        <td>₡32,500</td>
+                        <td>24</td>
+                        <td>Tomates</td>
+                        <td>12:15 PM</td>
+                      </tr>
+                      <tr>
+                        <td>2025-04-13</td>
+                        <td>₡18,900</td>
+                        <td>13</td>
+                        <td>Naranjas</td>
+                        <td>10:45 AM</td>
+                      </tr>
+                      <tr>
+                        <td>2025-04-12</td>
+                        <td>₡28,700</td>
+                        <td>22</td>
+                        <td>Piñas</td>
+                        <td>4:20 PM</td>
+                      </tr>
+                      <tr>
+                        <td>2025-04-11</td>
+                        <td>₡20,300</td>
+                        <td>15</td>
+                        <td>Frijoles</td>
+                        <td>6:10 PM</td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </>
+      )}
+
+      {view === "cliente" && <ClienteView />}
+      {view === "factura" && <FacturaView />}
+      {view === "venta" && <VentaView />}
+    </Container>
   );
 }
 
