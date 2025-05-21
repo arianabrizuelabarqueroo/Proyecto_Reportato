@@ -1,0 +1,340 @@
+/* Estilos personalizados para VerdeFresh */
+
+/* Variables CSS para consistencia */
+:root {
+  --primary-orange: #FF7F1F;
+  --primary-green: #7FDC39;
+  --primary-blue: #1734D8;
+  --secondary-gray: #828D3D;
+  --dark-gray: #373737;
+  --light-orange: rgba(255, 127, 31, 0.1);
+  --light-green: rgba(127, 220, 57, 0.1);
+  --light-blue: rgba(23, 52, 216, 0.1);
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --border-radius: 0.5rem;
+  --sidebar-width: 280px;
+}
+
+/* Layout principal */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  flex-shrink: 0;
+}
+
+.sidebar-nav {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.sidebar-footer {
+  flex-shrink: 0;
+}
+
+/* Contenido principal */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex-grow: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-area {
+  flex-grow: 1;
+  padding: 0;
+}
+
+/* Efectos hover y transiciones */
+.hover-shadow {
+  transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-2px);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Navegación sidebar */
+.sidebar .nav-link {
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border: none;
+}
+
+.sidebar .nav-link:hover {
+  background-color: var(--light-orange) !important;
+  color: var(--primary-orange) !important;
+}
+
+.sidebar .nav-link.active {
+  background-color: var(--primary-orange) !important;
+  color: white !important;
+}
+
+.hover-bg-light:hover {
+  background-color: #f8f9fa !important;
+}
+
+/* Header superior */
+.sticky-top {
+  position: sticky !important;
+  top: 0;
+  z-index: 999;
+}
+
+/* Clases de utilidad de colores personalizados */
+.bg-primary-orange { background-color: var(--primary-orange) !important; }
+.bg-primary-green { background-color: var(--primary-green) !important; }
+.bg-primary-blue { background-color: var(--primary-blue) !important; }
+.bg-secondary-gray { background-color: var(--secondary-gray) !important; }
+.bg-dark-gray { background-color: var(--dark-gray) !important; }
+
+.text-primary-orange { color: var(--primary-orange) !important; }
+.text-primary-green { color: var(--primary-green) !important; }
+.text-primary-blue { color: var(--primary-blue) !important; }
+.text-secondary-gray { color: var(--secondary-gray) !important; }
+.text-dark-gray { color: var(--dark-gray) !important; }
+
+.border-primary-orange { border-color: var(--primary-orange) !important; }
+.border-primary-green { border-color: var(--primary-green) !important; }
+.border-primary-blue { border-color: var(--primary-blue) !important; }
+
+.btn-primary-orange {
+  background-color: var(--primary-orange);
+  border-color: var(--primary-orange);
+  color: white;
+}
+
+.btn-primary-orange:hover {
+  background-color: #e6711c;
+  border-color: #e6711c;
+  color: white;
+}
+
+.btn-primary-green {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+  color: white;
+}
+
+.btn-primary-green:hover {
+  background-color: #71c730;
+  border-color: #71c730;
+  color: white;
+}
+
+.btn-primary-blue {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+}
+
+.btn-primary-blue:hover {
+  background-color: #142ec2;
+  border-color: #142ec2;
+  color: white;
+}
+
+.btn-outline-primary-orange {
+  color: var(--primary-orange);
+  border-color: var(--primary-orange);
+}
+
+.btn-outline-primary-orange:hover {
+  background-color: var(--primary-orange);
+  border-color: var(--primary-orange);
+  color: white;
+}
+
+.btn-outline-primary-green {
+  color: var(--primary-green);
+  border-color: var(--primary-green);
+}
+
+.btn-outline-primary-green:hover {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+  color: white;
+}
+
+.btn-outline-primary-blue {
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-outline-primary-blue:hover {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+}
+
+/* Estilos para las tarjetas de estadísticas */
+.stats-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Estilos para las tablas */
+.table th {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 1rem 0.75rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(40, 167, 69, 0.05);
+}
+
+/* Estilos para badges personalizados */
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.75em;
+  font-size: 0.75rem;
+}
+
+/* Estilos para el body */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Estilos para los iconos */
+.icon-container {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estilos para las acciones rápidas */
+.quick-action-card {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.quick-action-card:hover {
+  border-color: var(--primary-green);
+  background-color: rgba(40, 167, 69, 0.05) !important;
+}
+
+/* Efectos de progreso */
+.progress {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para botones personalizados */
+.btn {
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Espaciado personalizado */
+.section-spacing {
+  margin-bottom: 2rem;
+}
+
+/* Estilos para el contenedor principal */
+.main-container {
+  min-height: calc(100vh - 76px);
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Estilos responsivos */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 250px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 250px;
+  }
+  
+  .sidebar {
+    width: 100%;
+  }
+}
+
+/* Animaciones sutiles */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Estilos para alertas */
+.alert-custom {
+  border: none;
+  border-left: 4px solid;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
