@@ -6,13 +6,13 @@ const Sidebar = () => {
       title: 'Dashboard',
       icon: 'fas fa-home',
       active: true,
-      href: '#'
+      href: ''
     },
     {
       title: 'Ventas',
       icon: 'fas fa-shopping-cart',
       active: false,
-      href: '#',
+      href: 'ventas',
       subItems: [
         { title: 'Nueva Venta', href: '#' },
         { title: 'Historial', href: '#' },
@@ -23,7 +23,7 @@ const Sidebar = () => {
       title: 'Inventario',
       icon: 'fas fa-boxes',
       active: false,
-      href: '#',
+      href: 'inventario',
       subItems: [
         { title: 'Productos', href: '#' },
         { title: 'Categorías', href: '#' },
@@ -34,16 +34,16 @@ const Sidebar = () => {
       title: 'Clientes',
       icon: 'fas fa-users',
       active: false,
-      href: '#'
+      href: 'clientes'
     },
     {
       title: 'Reportes',
       icon: 'fas fa-chart-line',
       active: false,
-      href: '#',
+      href: 'reportes',
       subItems: [
-        { title: 'Ventas', href: '#' },
-        { title: 'Inventario', href: '#' },
+        { title: 'Ventas', href: 'ventas' },
+        { title: 'Inventario', href: 'inventario' },
         { title: 'Financiero', href: '#' }
       ]
     },
@@ -64,7 +64,7 @@ const Sidebar = () => {
             <i className="fas fa-leaf text-white fs-4"></i>
           </div>
           <div>
-            <h5 className="fw-bold mb-0 text-primary-orange">VerdeFresh</h5>
+            <h5 className="fw-bold mb-0 text-primary-orange">Reportato</h5>
             <small className="text-muted">Sistema de Gestión</small>
           </div>
         </div>

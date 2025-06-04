@@ -1,19 +1,10 @@
-/* Estilos personalizados para VerdeFresh */
-
-/* Variables CSS para consistencia */
+/* Variables de colores personalizados */
 :root {
-  --primary-orange: #FF7F1F;
-  --primary-green: #7FDC39;
-  --primary-blue: #1734D8;
-  --secondary-gray: #828D3D;
-  --dark-gray: #373737;
-  --light-orange: rgba(255, 127, 31, 0.1);
-  --light-green: rgba(127, 220, 57, 0.1);
-  --light-blue: rgba(23, 52, 216, 0.1);
-  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  --border-radius: 0.5rem;
-  --sidebar-width: 280px;
+  --primary-green: #28a745;
+  --primary-blue: #007bff;
+  --primary-orange: #fd7e14;
+  --primary-purple: #6f42c1;
+  --light-bg: #f8f9fa;
 }
 
 /* Layout principal */
@@ -22,9 +13,8 @@
   min-height: 100vh;
 }
 
-/* Sidebar */
 .sidebar {
-  width: var(--sidebar-width);
+  width: 280px;
   min-height: 100vh;
   position: fixed;
   left: 0;
@@ -34,113 +24,40 @@
   flex-direction: column;
 }
 
-.sidebar-header {
-  flex-shrink: 0;
-}
-
-.sidebar-nav {
-  flex-grow: 1;
-  overflow-y: auto;
-}
-
-.sidebar-footer {
-  flex-shrink: 0;
-}
-
-/* Contenido principal */
 .main-content {
-  margin-left: var(--sidebar-width);
-  flex-grow: 1;
-  min-height: 100vh;
+  margin-left: 280px;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .content-area {
-  flex-grow: 1;
-  padding: 0;
+  flex: 1;
+  background-color: var(--light-bg);
 }
 
-/* Efectos hover y transiciones */
-.hover-shadow {
-  transition: all 0.3s ease;
-}
-
-.hover-shadow:hover {
-  box-shadow: var(--shadow-md) !important;
-  transform: translateY(-2px);
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-/* Navegación sidebar */
-.sidebar .nav-link {
-  transition: all 0.3s ease;
-  font-weight: 500;
-  border: none;
-}
-
-.sidebar .nav-link:hover {
-  background-color: var(--light-orange) !important;
-  color: var(--primary-orange) !important;
-}
-
-.sidebar .nav-link.active {
-  background-color: var(--primary-orange) !important;
-  color: white !important;
-}
-
-.hover-bg-light:hover {
-  background-color: #f8f9fa !important;
-}
-
-/* Header superior */
-.sticky-top {
-  position: sticky !important;
-  top: 0;
-  z-index: 999;
-}
-
-/* Clases de utilidad de colores personalizados */
-.bg-primary-orange { background-color: var(--primary-orange) !important; }
-.bg-primary-green { background-color: var(--primary-green) !important; }
-.bg-primary-blue { background-color: var(--primary-blue) !important; }
-.bg-secondary-gray { background-color: var(--secondary-gray) !important; }
-.bg-dark-gray { background-color: var(--dark-gray) !important; }
-
-.text-primary-orange { color: var(--primary-orange) !important; }
+/* Colores personalizados para Bootstrap */
 .text-primary-green { color: var(--primary-green) !important; }
 .text-primary-blue { color: var(--primary-blue) !important; }
-.text-secondary-gray { color: var(--secondary-gray) !important; }
-.text-dark-gray { color: var(--dark-gray) !important; }
+.text-primary-orange { color: var(--primary-orange) !important; }
+.text-primary-purple { color: var(--primary-purple) !important; }
 
-.border-primary-orange { border-color: var(--primary-orange) !important; }
-.border-primary-green { border-color: var(--primary-green) !important; }
-.border-primary-blue { border-color: var(--primary-blue) !important; }
+.bg-primary-green { background-color: var(--primary-green) !important; }
+.bg-primary-blue { background-color: var(--primary-blue) !important; }
+.bg-primary-orange { background-color: var(--primary-orange) !important; }
+.bg-primary-purple { background-color: var(--primary-purple) !important; }
 
-.btn-primary-orange {
-  background-color: var(--primary-orange);
-  border-color: var(--primary-orange);
-  color: white;
-}
-
-.btn-primary-orange:hover {
-  background-color: #e6711c;
-  border-color: #e6711c;
-  color: white;
-}
-
+/* Botones personalizados */
 .btn-primary-green {
   background-color: var(--primary-green);
   border-color: var(--primary-green);
   color: white;
 }
 
-.btn-primary-green:hover {
-  background-color: #71c730;
-  border-color: #71c730;
+.btn-primary-green:hover,
+.btn-primary-green:focus {
+  background-color: #218838;
+  border-color: #1e7e34;
   color: white;
 }
 
@@ -150,20 +67,23 @@
   color: white;
 }
 
-.btn-primary-blue:hover {
-  background-color: #142ec2;
-  border-color: #142ec2;
+.btn-primary-blue:hover,
+.btn-primary-blue:focus {
+  background-color: #0056b3;
+  border-color: #004085;
   color: white;
 }
 
-.btn-outline-primary-orange {
-  color: var(--primary-orange);
-  border-color: var(--primary-orange);
-}
-
-.btn-outline-primary-orange:hover {
+.btn-primary-orange {
   background-color: var(--primary-orange);
   border-color: var(--primary-orange);
+  color: white;
+}
+
+.btn-primary-orange:hover,
+.btn-primary-orange:focus {
+  background-color: #e55a00;
+  border-color: #dc5200;
   color: white;
 }
 
@@ -172,7 +92,8 @@
   border-color: var(--primary-green);
 }
 
-.btn-outline-primary-green:hover {
+.btn-outline-primary-green:hover,
+.btn-outline-primary-green:focus {
   background-color: var(--primary-green);
   border-color: var(--primary-green);
   color: white;
@@ -183,140 +104,41 @@
   border-color: var(--primary-blue);
 }
 
-.btn-outline-primary-blue:hover {
+.btn-outline-primary-blue:hover,
+.btn-outline-primary-blue:focus {
   background-color: var(--primary-blue);
   border-color: var(--primary-blue);
   color: white;
 }
 
-/* Estilos para las tarjetas de estadísticas */
-.stats-card {
-  transition: transform 0.2s ease-in-out;
+.btn-outline-primary-orange {
+  color: var(--primary-orange);
+  border-color: var(--primary-orange);
 }
 
-.stats-card:hover {
-  transform: translateY(-5px);
+.btn-outline-primary-orange:hover,
+.btn-outline-primary-orange:focus {
+  background-color: var(--primary-orange);
+  border-color: var(--primary-orange);
+  color: white;
 }
 
-/* Estilos para las tablas */
-.table th {
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* Barras de progreso personalizadas */
+.progress-bar.bg-primary-green { background-color: var(--primary-green) !important; }
+.progress-bar.bg-primary-blue { background-color: var(--primary-blue) !important; }
+.progress-bar.bg-primary-orange { background-color: var(--primary-orange) !important; }
 
-.table td {
-  vertical-align: middle;
-  padding: 1rem 0.75rem;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(40, 167, 69, 0.05);
-}
-
-/* Estilos para badges personalizados */
-.badge {
-  font-weight: 500;
-  padding: 0.5em 0.75em;
-  font-size: 0.75rem;
-}
-
-/* Estilos para el body */
-body {
-  background-color: #f8f9fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Estilos para los iconos */
-.icon-container {
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Estilos para las acciones rápidas */
-.quick-action-card {
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
-
-.quick-action-card:hover {
-  border-color: var(--primary-green);
-  background-color: rgba(40, 167, 69, 0.05) !important;
-}
-
-/* Efectos de progreso */
-.progress {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Estilos para botones personalizados */
-.btn {
-  font-weight: 500;
-  border-radius: var(--border-radius);
+/* Efectos hover */
+.hover-bg-light:hover {
+  background-color: #f8f9fa !important;
   transition: all 0.2s ease;
 }
 
-.btn:hover {
-  transform: translateY(-1px);
+/* Animaciones */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
 }
 
-/* Espaciado personalizado */
-.section-spacing {
-  margin-bottom: 2rem;
-}
-
-/* Estilos para el contenedor principal */
-.main-container {
-  min-height: calc(100vh - 76px);
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-}
-
-/* Estilos responsivos */
-@media (max-width: 992px) {
-  .sidebar {
-    width: 250px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-  
-  .sidebar.show {
-    transform: translateX(0);
-  }
-  
-  .main-content {
-    margin-left: 0;
-  }
-  
-  .stats-card {
-    margin-bottom: 1rem;
-  }
-  
-  .table-responsive {
-    font-size: 0.875rem;
-  }
-  
-  .card-body {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  :root {
-    --sidebar-width: 250px;
-  }
-  
-  .sidebar {
-    width: 100%;
-  }
-}
-
-/* Animaciones sutiles */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -328,13 +150,167 @@ body {
   }
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
+.transition-all {
+  transition: all 0.2s ease;
 }
 
-/* Estilos para alertas */
-.alert-custom {
+/* Sidebar específico */
+.sidebar-nav .nav-link {
+  transition: all 0.2s ease;
   border: none;
-  border-left: 4px solid;
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
+
+.sidebar-nav .nav-link:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.sidebar-nav .nav-link.active {
+  background-color: var(--primary-green);
+  color: white;
+  transform: translateX(5px);
+}
+
+/* Cards con sombra personalizada */
+.card {
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* Tablas responsivas mejoradas */
+.table-hover tbody tr:hover {
+  background-color: rgba(40, 167, 69, 0.05);
+}
+
+/* Badges personalizados */
+.badge.bg-light {
+  color: #6c757d !important;
+  background-color: #f8f9fa !important;
+}
+
+/* Modal mejorado */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+
+/* Alertas personalizadas */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+/* Input groups mejorados */
+.input-group-text {
+  background-color: #fff;
+  border-color: #ced4da;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .app-layout {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-area .container-fluid {
+    padding: 1rem !important;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Estados de carga */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Scrollbar personalizada */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Efectos de enfoque */
+.form-control:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-select:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Mejoras en la tipografía */
+.fw-bold {
+  font-weight: 600 !important;
+}
+
+.fw-medium {
+  font-weight: 500 !important;
+}
+
+/* Estados de botones de acción */
+.btn-group .btn {
+  border-radius: 4px !important;
+  margin-right: 2px;
+}
+
+.btn-group .btn:last-child {
+  margin-right: 0;
+}
+
+/* Indicadores visuales */
+.text-success { color: #28a745 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-danger { color: #dc3545 !important; }
