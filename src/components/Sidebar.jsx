@@ -1,58 +1,64 @@
-import React from 'react';
+import React from "react";
 
 const Sidebar = () => {
   const menuItems = [
     {
-      title: 'Dashboard',
-      icon: 'fas fa-home',
+      title: "Dashboard",
+      icon: "fas fa-home",
       active: true,
-      href: ''
+      href: "",
     },
     {
-      title: 'Ventas',
-      icon: 'fas fa-shopping-cart',
+      title: "Ventas",
+      icon: "fas fa-shopping-cart",
       active: false,
-      href: 'ventas',
+      href: "ventas",
       subItems: [
-        { title: 'Nueva Venta', href: '#' },
-        { title: 'Historial', href: '#' },
-        { title: 'Devoluciones', href: '#' }
-      ]
+        { title: "Nueva Venta", href: "#" },
+        { title: "Historial", href: "#" },
+        { title: "Devoluciones", href: "#" },
+      ],
     },
     {
-      title: 'Inventario',
-      icon: 'fas fa-boxes',
+      title: "Inventario",
+      icon: "fas fa-boxes",
       active: false,
-      href: 'inventario',
+      href: "inventario",
       subItems: [
-        { title: 'Productos', href: '#' },
-        { title: 'Categorías', href: '#' },
-        { title: 'Proveedores', href: '#' }
-      ]
+        { title: "Productos", href: "#" },
+        { title: "Categorías", href: "#" },
+        { title: "Proveedores", href: "#" },
+      ],
     },
     {
-      title: 'Clientes',
-      icon: 'fas fa-users',
+      title: "Clientes",
+      icon: "fas fa-users",
       active: false,
-      href: 'clientes'
+      href: "clientes",
     },
     {
-      title: 'Reportes',
-      icon: 'fas fa-chart-line',
+      title: "Reportes",
+      icon: "fas fa-chart-line",
       active: false,
-      href: 'reportes',
+      href: "reportes",
       subItems: [
-        { title: 'Ventas', href: 'ventas' },
-        { title: 'Inventario', href: 'inventario' },
-        { title: 'Financiero', href: '#' }
-      ]
+        { title: "Ventas", href: "ventas" },
+        { title: "Inventario", href: "inventario" },
+        { title: "Financiero", href: "#" },
+      ],
     },
     {
-      title: 'Configuración',
-      icon: 'fas fa-cog',
+      title: "Configuración",
+      icon: "fas fa-cog",
       active: false,
-      href: '#'
-    }
+      href: "#",
+    },
+    {
+      title: "Usuarios",
+      icon: "fas fa-user-shield",
+      active: false,
+      href: "usuarios",
+    },
   ];
 
   return (
@@ -75,32 +81,35 @@ const Sidebar = () => {
         <ul className="nav flex-column gap-1">
           {menuItems.map((item, index) => (
             <li key={index} className="nav-item">
-              <a 
+              <a
                 className={`nav-link d-flex align-items-center px-3 py-2 rounded-3 ${
-                  item.active ? 'active bg-primary-orange text-white' : 'text-dark hover-bg-light'
-                }`} 
+                  item.active
+                    ? "active bg-primary-orange text-white"
+                    : "text-dark hover-bg-light"
+                }`}
                 href={item.href}
-                data-bs-toggle={item.subItems ? 'collapse' : ''}
-                data-bs-target={item.subItems ? `#submenu${index}` : ''}
+                data-bs-toggle={item.subItems ? "collapse" : ""}
+                data-bs-target={item.subItems ? `#submenu${index}` : ""}
               >
                 <i className={`${item.icon} me-3`}></i>
                 <span className="flex-grow-1">{item.title}</span>
-                {item.subItems && (
-                  <i className="fas fa-chevron-down small"></i>
-                )}
+                {item.subItems && <i className="fas fa-chevron-down small"></i>}
               </a>
-              
+
               {/* Submenú */}
               {item.subItems && (
                 <div className="collapse" id={`submenu${index}`}>
                   <ul className="nav flex-column ms-4 mt-2">
                     {item.subItems.map((subItem, subIndex) => (
                       <li key={subIndex} className="nav-item">
-                        <a 
-                          className="nav-link py-1 px-3 text-muted small hover-bg-light rounded-3" 
+                        <a
+                          className="nav-link py-1 px-3 text-muted small hover-bg-light rounded-3"
                           href={subItem.href}
                         >
-                          <i className="fas fa-circle me-2" style={{fontSize: '0.5rem'}}></i>
+                          <i
+                            className="fas fa-circle me-2"
+                            style={{ fontSize: "0.5rem" }}
+                          ></i>
                           {subItem.title}
                         </a>
                       </li>
@@ -120,8 +129,11 @@ const Sidebar = () => {
           <h6 className="fw-bold mb-1">Ventas del Día</h6>
           <p className="text-primary-green fw-bold mb-0">$2,450.00</p>
           <small className="text-muted">Meta: $3,000.00</small>
-          <div className="progress mt-2" style={{height: '4px'}}>
-            <div className="progress-bar bg-primary-green" style={{width: '82%'}}></div>
+          <div className="progress mt-2" style={{ height: "4px" }}>
+            <div
+              className="progress-bar bg-primary-green"
+              style={{ width: "82%" }}
+            ></div>
           </div>
         </div>
       </div>
