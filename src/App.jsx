@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Clientes from './pages/Clientes';
 import Ventas from './pages/Ventas';
 import Inventario from './pages/Inventario';
-import Reportes from './pages/Reportes';
+import Productos from './pages/Productos';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -15,6 +15,7 @@ function App() {
         <Route path="/clientes" element={<Clientes />} />
         <Route path="/ventas" element={<Ventas />} />
         <Route path="/inventario" element={<Inventario />} />
+        <Route path="/productos" element={<Productos />} />
       </Routes>
     </BrowserRouter>
   );
