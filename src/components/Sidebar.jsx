@@ -47,6 +47,12 @@ const Sidebar = () => {
         { title: 'Financiero', href: '#' }
       ]
     },
+     {
+      title: 'Productos',
+      icon: 'fas fa-users',
+      active: false,
+      href: 'productos'
+    },
     {
       title: 'Configuración',
       icon: 'fas fa-cog',
