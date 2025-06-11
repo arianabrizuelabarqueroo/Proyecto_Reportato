@@ -72,10 +72,10 @@ const Sidebar = () => {
       href: "#",
     },
     {
-      title: "Usuarios",
+      title: "Usuario",
       icon: "fas fa-user-shield",
       active: false,
-      href: "usuarios",
+      href: "usuario",
     },
   ];
 

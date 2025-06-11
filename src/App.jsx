@@ -6,7 +6,7 @@ import Fidelizacion from './pages/Fidelizacion';
 import Ventas from './pages/Ventas';
 import Inventario from './pages/Inventario';
 import Proveedores from './pages/Proveedores';
-import Usuarios from './pages/Usuarios';
+import Usuario from './pages/Usuario';
 import Productos from './pages/Productos';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -19,7 +19,7 @@ function App() {
         <Route path="/fidelizacion" element={<Fidelizacion />} />
         <Route path="/ventas" element={<Ventas />} />
         <Route path="/inventario" element={<Inventario />} />
-        <Route path="/usuarios" element={<Usuarios />} />
+        <Route path="/usuario" element={<Usuario />} />
         <Route path="/productos" element={<Productos />} />
         <Route path="/proveedores" element={<Proveedores />} />
       </Routes>
