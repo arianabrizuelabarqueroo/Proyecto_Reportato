@@ -26,6 +26,79 @@ async function connectDB() {
   }
 }
 
+
+// Rutas para usuarios - CORREGIDAS para usar async/await
+app.get('/usuarios', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM usuarios ORDER BY nombre');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.post('/usuarios', async (req, res) => {
+  try {
+    const { nombre, correo, rol } = req.body;
+
+    if (!nombre || !correo) {
+      return res.status(400).json({ message: 'Nombre y correo son requeridos' });
+    }
+
+    const [result] = await db.execute(
+      'INSERT INTO usuarios (nombre, correo, rol) VALUES (?, ?, ?)',
+      [nombre, correo, rol]
+    );
+
+    res.status(201).json({ 
+      id: result.insertId, 
+      message: 'Usuario creado exitosamente' 
+    });
+  } catch (error) {
+    console.error('Error al crear usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.put('/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, correo, rol } = req.body;
+
+    const [result] = await db.execute(
+      'UPDATE usuarios SET nombre = ?, correo = ?, rol = ? WHERE id = ?',
+      [nombre, correo, rol, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json({ message: 'Usuario actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.delete('/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute('DELETE FROM usuarios WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json({ message: 'Usuario eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Rutas para productos
 app.get('/productos', async (req, res) => {
   try {
