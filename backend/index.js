@@ -98,6 +98,17 @@ app.delete('/productos/:id', async (req, res) => {
   }
 });
 
+// Ruta para obtener productos activos
+app.get('/productos/activos', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM PRODUCTOS WHERE estado = "Activo" ORDER BY fecha_registro DESC');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener productos activos:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Rutas para inventario - FIXED
 app.get('/inventario', async (req, res) => {
   try {
