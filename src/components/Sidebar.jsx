@@ -37,6 +37,12 @@ const Sidebar = () => {
       href: "clientes",
     },
     {
+      title: "Proveedores",
+      icon: "fas fa-users",
+      active: false,
+      href: "proveedores",
+    },
+    {
       title: "Reportes",
       icon: "fas fa-chart-line",
       active: false,
