@@ -15,7 +15,6 @@ const dbConfig = {
   database: 'reportato'
 };
 
-
 let db;
 async function connectDB() {
   try {
@@ -27,7 +26,7 @@ async function connectDB() {
   }
 }
 
-
+// Rutas para productos
 app.get('/productos', async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM PRODUCTOS ORDER BY fecha_registro DESC');
@@ -60,7 +59,6 @@ app.post('/productos', async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
-
 
 app.put('/productos/:id', async (req, res) => {
   try {
@@ -100,7 +98,86 @@ app.delete('/productos/:id', async (req, res) => {
   }
 });
 
+// Rutas para inventario - FIXED
+app.get('/inventario', async (req, res) => {
+  try {
+    const query = `
+      SELECT inv.*, p.nombre AS nombre_producto, p.categoria, p.unidad_medida
+      FROM INVENTARIO inv
+      JOIN PRODUCTOS p ON inv.producto_id = p.id
+      ORDER BY inv.fecha_registro DESC
+    `;
+    const [rows] = await db.execute(query);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener inventario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
 
+app.post('/inventario', async (req, res) => {
+  try {
+    const { producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado } = req.body;
+    
+    const [result] = await db.execute(
+      `INSERT INTO INVENTARIO 
+        (producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado]
+    );
+    
+    res.status(201).json({ 
+      id: result.insertId, 
+      message: 'Registro de inventario creado exitosamente' 
+    });
+  } catch (error) {
+    console.error('Error al crear registro de inventario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.put('/inventario/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado } = req.body;
+    
+    const [result] = await db.execute(
+      `UPDATE INVENTARIO SET 
+        producto_id = ?, stock_actual = ?, stock_minimo = ?, precio_unitario = ?, 
+        fecha_ingreso = ?, fecha_vencimiento = ?, estado = ?
+       WHERE id = ?`,
+      [producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado, id]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Registro de inventario no encontrado' });
+    }
+    
+    res.json({ message: 'Registro de inventario actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar registro de inventario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.delete('/inventario/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [result] = await db.execute('DELETE FROM INVENTARIO WHERE id = ?', [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Registro de inventario no encontrado' });
+    }
+    
+    res.json({ message: 'Registro de inventario eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar registro de inventario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Rutas para proveedores
 app.get('/proveedores', async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM PROVEEDORES ORDER BY fecha_registro DESC');
