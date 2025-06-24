@@ -8,6 +8,7 @@ import Inventario from './pages/Inventario';
 import Proveedores from './pages/Proveedores';
 import Usuario from './pages/Usuario';
 import Productos from './pages/Productos';
+import Sucursales from './pages/Sucursales';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/usuario" element={<Usuario />} />
         <Route path="/productos" element={<Productos />} />
         <Route path="/proveedores" element={<Proveedores />} />
+        <Route path="/sucursales" element={<Sucursales />} />
       </Routes>
     </BrowserRouter>
   );

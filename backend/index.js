@@ -391,6 +391,115 @@ app.delete('/proveedores/:id', async (req, res) => {
   }
 });
 
+// Rutas para sucursales/puntos de venta
+app.get('/sucursales', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM sucursales ORDER BY nombre');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener sucursales:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Obtener solo sucursales activas
+app.get('/sucursales/activas', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM sucursales WHERE estado = "activa" ORDER BY nombre');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener sucursales activas:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.post('/sucursales', async (req, res) => {
+  try {
+    const { nombre, tipo, ubicacion, estado } = req.body;
+
+    if (!nombre || !tipo || !ubicacion) {
+      return res.status(400).json({ message: 'Nombre, tipo y ubicación son requeridos' });
+    }
+
+    const [result] = await db.execute(
+      'INSERT INTO sucursales (nombre, tipo, ubicacion, estado) VALUES (?, ?, ?, ?)',
+      [nombre, tipo, ubicacion, estado || 'activa']
+    );
+
+    res.status(201).json({ 
+      id: result.insertId, 
+      message: 'Sucursal creada exitosamente' 
+    });
+  } catch (error) {
+    console.error('Error al crear sucursal:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.put('/sucursales/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, tipo, ubicacion, estado } = req.body;
+
+    const [result] = await db.execute(
+      'UPDATE sucursales SET nombre = ?, tipo = ?, ubicacion = ?, estado = ? WHERE id = ?',
+      [nombre, tipo, ubicacion, estado, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Sucursal no encontrada' });
+    }
+
+    res.json({ message: 'Sucursal actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar sucursal:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.delete('/sucursales/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute('DELETE FROM sucursales WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Sucursal no encontrada' });
+    }
+
+    res.json({ message: 'Sucursal eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar sucursal:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint para cambiar estado de sucursal (activa/inactiva)
+app.patch('/sucursales/:id/estado', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!['activa', 'inactiva'].includes(estado)) {
+      return res.status(400).json({ message: 'Estado debe ser "activa" o "inactiva"' });
+    }
+
+    const [result] = await db.execute(
+      'UPDATE sucursales SET estado = ? WHERE id = ?',
+      [estado, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Sucursal no encontrada' });
+    }
+
+    res.json({ message: `Sucursal marcada como ${estado} exitosamente` });
+  } catch (error) {
+    console.error('Error al cambiar estado de sucursal:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 async function startServer() {
   await connectDB();
   
