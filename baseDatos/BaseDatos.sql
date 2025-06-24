@@ -1,9 +1,17 @@
-Create database REPORTATO;
-
+-- Crear la base de datos
+CREATE DATABASE IF NOT EXISTS REPORTATO;
 USE REPORTATO;
 
+-- Crear tabla de usuarios con ENUM corregido
+CREATE TABLE IF NOT EXISTS USUARIOS (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100),
+  correo VARCHAR(100),
+  rol ENUM('Administrador', 'Organizador', 'Usuario'),
+  contrasena VARCHAR(100)
+);
 
--- Crear tabla PROVEEDORES
+-- Crear tabla de proveedores
 CREATE TABLE IF NOT EXISTS PROVEEDORES (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -17,13 +25,7 @@ CREATE TABLE IF NOT EXISTS PROVEEDORES (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS USUARIOS (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(100),
-  correo VARCHAR(100),
-  rol ENUM('admin', 'empleado')
-);
-
+-- Crear tabla de productos
 CREATE TABLE IF NOT EXISTS PRODUCTOS (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -34,6 +36,7 @@ CREATE TABLE IF NOT EXISTS PRODUCTOS (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Crear tabla de inventario
 CREATE TABLE IF NOT EXISTS INVENTARIO (
     id INT AUTO_INCREMENT PRIMARY KEY,
     producto_id INT NOT NULL,
@@ -47,8 +50,7 @@ CREATE TABLE IF NOT EXISTS INVENTARIO (
     FOREIGN KEY (producto_id) REFERENCES PRODUCTOS(id) ON DELETE CASCADE
 );
 
-
--- Insertar datos en USUARIOS
+-- Insertar usuarios
 INSERT INTO USUARIOS (NOMBRE, ROL, CORREO, CONTRASENA) VALUES
 ('Carlos Pérez', 'Administrador', 'carlos@correo.com', '$2y$10$abcdefgHIJKLMNOpqrstuvWXyz1234567890abcdefgHIJKLMNO'),
 ('Laura Gómez', 'Organizador', 'laura@correo.com', '$2y$10$1111111111111111111111111111111111111111111111111111'),
@@ -61,7 +63,7 @@ INSERT INTO USUARIOS (NOMBRE, ROL, CORREO, CONTRASENA) VALUES
 ('Gabriel Mena', 'Usuario', 'gabriel@correo.com', '$2y$10$8888888888888888888888888888888888888888888888888888'),
 ('Lucía Herrera', 'Organizador', 'lucia@correo.com', '$2y$10$9999999999999999999999999999999999999999999999999999');
 
--- Insertar datos en PRODUCTOS
+-- Insertar productos
 INSERT INTO PRODUCTOS (nombre, categoria, unidad_medida, descripcion) VALUES
 ('Tomate', 'Verduras', 'kg', 'Tomate fresco'),
 ('Cebolla', 'Verduras', 'kg', 'Cebolla blanca'),
@@ -74,11 +76,12 @@ INSERT INTO PRODUCTOS (nombre, categoria, unidad_medida, descripcion) VALUES
 ('Limón', 'Frutas', 'kg', 'Limón verde'),
 ('Cilantro', 'Hierbas', 'manojo', 'Cilantro fresco');
 
+-- Insertar inventario
 INSERT INTO INVENTARIO (producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento) VALUES
 (1, 50, 10, 2.50, '2024-01-15', '2024-02-15'),
 (2, 30, 5, 1.80, '2024-01-16', '2024-03-16');
 
--- Insertar datos en PROVEEDORES
+-- Insertar proveedores
 INSERT INTO PROVEEDORES (nombre, empresa, telefono, email, direccion, ciudad, tipo_proveedor) VALUES 
 ('Juan Carlos Mendez', 'Frutas y Verduras El Campo', '+506 8888-1111', 'juan@elcampo.com', 'San José Centro, Avenida Central', 'San José', 'Mayorista'),
 ('María Elena Vargas', 'Distribuidora Verde Fresco', '+506 8888-2222', 'maria@verdefresco.com', 'Cartago, Mercado Central', 'Cartago', 'Distribuidor'),
@@ -88,5 +91,3 @@ INSERT INTO PROVEEDORES (nombre, empresa, telefono, email, direccion, ciudad, ti
 ('Sofía Hernández', 'Distribuciones Hernández', '+506 8888-6666', 'sofia@dihernandez.com', 'Limón, Puerto Viejo', 'Limón', 'Distribuidor'),
 ('Diego Morales', 'Verduras Frescas Morales', '+506 8888-7777', 'diego@verdurasmorales.com', 'Guanacaste, Liberia Centro', 'Guanacaste', 'Mayorista'),
 ('Patricia Castro', 'Frutas Tropicales Castro', '+506 8888-8888', 'patricia@tropicales.com', 'San José, Pavas', 'San José', 'Productor');
-
-

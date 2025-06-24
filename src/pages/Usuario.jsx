@@ -15,7 +15,7 @@ const Usuario = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
-    rol: 'Empleado'
+    rol: 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
   });
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const Usuario = () => {
       setUsuarios(data);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
-      setUsuarios([]); // Establecer array vacío en caso de error
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -80,11 +80,17 @@ const Usuario = () => {
       if (response.ok) {
         await fetchUsuarios();
         resetForm();
+        // Agregar mensaje de éxito (opcional)
+        console.log(editingUsuario ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente');
       } else {
-        console.error('Error al guardar usuario:', response.statusText);
+        // Mejorar manejo de errores
+        const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+        console.error('Error al guardar usuario:', errorData.message);
+        alert(`Error: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error al guardar usuario:', error);
+      alert('Error de conexión. Por favor, intenta nuevamente.');
     }
   };
 
@@ -93,7 +99,7 @@ const Usuario = () => {
     setFormData({
       nombre: usuario.nombre || '',
       correo: usuario.correo || '',
-      rol: usuario.rol || 'Empleado'
+      rol: usuario.rol || 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
     });
     setShowModal(true);
   };
@@ -116,12 +122,12 @@ const Usuario = () => {
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', correo: '', rol: 'Empleado' });
+    setFormData({ nombre: '', correo: '', rol: 'Usuario' }); // Cambiado de 'Empleado' a 'Usuario'
     setEditingUsuario(null);
     setShowModal(false);
   };
 
-  // Función auxiliar para conteo seguro
+  // Función auxiliar para conteo seguro - CORREGIDA
   const safeCount = (array, condition) => {
     return array.filter(item => {
       if (!item.rol) return false;
@@ -205,7 +211,7 @@ const Usuario = () => {
                     <i className="fas fa-user-tie fa-2x text-primary-green me-3"></i>
                     <div>
                       <h5 className="fw-bold mb-0">
-                        {safeCount(usuarios, rol => rol === 'admin')}
+                        {safeCount(usuarios, rol => rol === 'administrador')}
                       </h5>
                       <small className="text-muted">Administradores</small>
                     </div>
@@ -218,9 +224,9 @@ const Usuario = () => {
                     <i className="fas fa-user fa-2x text-primary-orange me-3"></i>
                     <div>
                       <h5 className="fw-bold mb-0">
-                        {safeCount(usuarios, rol => rol === 'empleado')}
+                        {safeCount(usuarios, rol => rol === 'usuario')}
                       </h5>
-                      <small className="text-muted">Empleados</small>
+                      <small className="text-muted">Usuarios</small>
                     </div>
                   </div>
                 </div>
@@ -248,8 +254,10 @@ const Usuario = () => {
                             <td>{usuario.correo || 'N/A'}</td>
                             <td>
                               <span className={`badge ${
-                                usuario.rol?.toLowerCase() === 'admin' 
+                                usuario.rol?.toLowerCase() === 'administrador' 
                                   ? 'bg-primary' 
+                                  : usuario.rol?.toLowerCase() === 'organizador'
+                                  ? 'bg-success'
                                   : 'bg-secondary'
                               }`}>
                                 {usuario.rol || 'N/A'}
@@ -375,8 +383,9 @@ const Usuario = () => {
                             onChange={handleInputChange}
                             required
                           >
-                            <option value="Admin">Admin</option>
-                            <option value="Empleado">Empleado</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Organizador">Organizador</option>
+                            <option value="Usuario">Usuario</option>
                           </select>
                         </div>
                       </div>
