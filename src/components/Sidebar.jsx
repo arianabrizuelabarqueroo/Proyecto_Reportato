@@ -20,6 +20,12 @@ const Sidebar = () => {
       ],
     },
     {
+      title: "Compras",
+      icon: "fas fa-tag",
+      active: false,
+      href: "compras"
+    },
+    {
       title: "Inventario",
       icon: "fas fa-boxes",
       active: false,
