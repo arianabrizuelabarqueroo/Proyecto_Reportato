@@ -55,6 +55,9 @@ const Login = () => {
 
       if (response.ok) {
         const usuario = data.usuario;
+        localStorage.setItem("rol", usuario.rol);
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+
         if (usuario.contrasena_temporal) {
           setCurrentUser(usuario);
           setShowChangePassword(true);

@@ -11,6 +11,10 @@ CREATE TABLE IF NOT EXISTS USUARIOS (
   contrasena VARCHAR(100)
 );
 
+INSERT INTO USUARIOS (nombre, correo, rol, contrasena)
+VALUES ('Usuario', 'usuario@correo.com', 'Usuario', 'usuario');
+
+
 -- Crear tabla de proveedores
 CREATE TABLE IF NOT EXISTS PROVEEDORES (
     id INT AUTO_INCREMENT PRIMARY KEY,
