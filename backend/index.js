@@ -10,8 +10,8 @@ app.use(express.json());
 
 const dbConfig = {
   host: 'localhost',
-  user: 'root', 
-  password: 'admin', 
+  user: 'root',
+  password: '88419550',
   database: 'reportato'
 };
 
@@ -26,8 +26,17 @@ async function connectDB() {
   }
 }
 
+// Función para generar contraseña aleatoria
+function generarContrasenaAleatoria(longitud = 8) {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let resultado = '';
+  for (let i = 0; i < longitud; i++) {
+    resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+  }
+  return resultado;
+}
 
-// Rutas para usuarios - CORREGIDAS para usar async/await
+// Rutas para usuarios
 app.get('/usuarios', async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM usuarios ORDER BY nombre');
@@ -46,14 +55,18 @@ app.post('/usuarios', async (req, res) => {
       return res.status(400).json({ message: 'Nombre y correo son requeridos' });
     }
 
+    // Generar contraseña aleatoria
+    const contrasenaTemp = generarContrasenaAleatoria();
+
     const [result] = await db.execute(
-      'INSERT INTO usuarios (nombre, correo, rol) VALUES (?, ?, ?)',
-      [nombre, correo, rol]
+      'INSERT INTO usuarios (nombre, correo, rol, contrasena, contrasena_temporal) VALUES (?, ?, ?, ?, TRUE)',
+      [nombre, correo, rol, contrasenaTemp]
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Usuario creado exitosamente' 
+    res.status(201).json({
+      id: result.insertId,
+      contrasenaTemp: contrasenaTemp,
+      message: 'Usuario creado exitosamente'
     });
   } catch (error) {
     console.error('Error al crear usuario:', error);
@@ -100,6 +113,74 @@ app.delete('/usuarios/:id', async (req, res) => {
 });
 
 // Rutas para productos
+app.post('/login', async (req, res) => {
+  try {
+    const { correo, contrasena } = req.body;
+
+    if (!correo || !contrasena) {
+      return res.status(400).json({ message: 'Correo y contraseña son requeridos' });
+    }
+
+    const [rows] = await db.execute(
+      'SELECT * FROM usuarios WHERE correo = ? AND contrasena = ?',
+      [correo, contrasena]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Credenciales incorrectas' });
+    }
+
+    const usuario = rows[0];
+    res.json({
+      success: true,
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        rol: usuario.rol,
+        contrasena_temporal: usuario.contrasena_temporal || false
+      }
+    });
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+//Rutas cambiar contrasena
+app.put('/usuarios/:id/cambiar-contrasena', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { contrasenaActual, nuevaContrasena } = req.body;
+
+    if (!contrasenaActual || !nuevaContrasena) {
+      return res.status(400).json({ message: 'Contraseña actual y nueva contraseña son requeridas' });
+    }
+
+    // Verificar contraseña actual
+    const [rows] = await db.execute(
+      'SELECT * FROM usuarios WHERE id = ? AND contrasena = ?',
+      [id, contrasenaActual]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+    }
+
+    // Actualizar contraseña y marcar como no temporal
+    const [result] = await db.execute(
+      'UPDATE usuarios SET contrasena = ?, contrasena_temporal = FALSE WHERE id = ?',
+      [nuevaContrasena, id]
+    );
+
+    res.json({ message: 'Contraseña actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al cambiar contraseña:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Rutas para productos
 app.get('/productos', async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM PRODUCTOS ORDER BY fecha_registro DESC');
@@ -113,7 +194,7 @@ app.get('/productos', async (req, res) => {
 app.post('/productos', async (req, res) => {
   try {
     const { nombre, categoria, unidad_medida, descripcion, estado } = req.body;
-    
+
     if (!nombre || !categoria) {
       return res.status(400).json({ message: 'Nombre y categoría son requeridos' });
     }
@@ -157,7 +238,7 @@ app.put('/productos/:id', async (req, res) => {
 app.delete('/productos/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const [result] = await db.execute('DELETE FROM PRODUCTOS WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
@@ -182,7 +263,7 @@ app.get('/productos/activos', async (req, res) => {
   }
 });
 
-// Rutas para inventario - FIXED
+// Rutas para inventario
 app.get('/inventario', async (req, res) => {
   try {
     const query = `
@@ -202,17 +283,17 @@ app.get('/inventario', async (req, res) => {
 app.post('/inventario', async (req, res) => {
   try {
     const { producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado } = req.body;
-    
+
     const [result] = await db.execute(
       `INSERT INTO INVENTARIO 
         (producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado]
     );
-    
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Registro de inventario creado exitosamente' 
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Registro de inventario creado exitosamente'
     });
   } catch (error) {
     console.error('Error al crear registro de inventario:', error);
@@ -224,7 +305,7 @@ app.put('/inventario/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado } = req.body;
-    
+
     const [result] = await db.execute(
       `UPDATE INVENTARIO SET 
         producto_id = ?, stock_actual = ?, stock_minimo = ?, precio_unitario = ?, 
@@ -232,11 +313,11 @@ app.put('/inventario/:id', async (req, res) => {
        WHERE id = ?`,
       [producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado, id]
     );
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Registro de inventario no encontrado' });
     }
-    
+
     res.json({ message: 'Registro de inventario actualizado exitosamente' });
   } catch (error) {
     console.error('Error al actualizar registro de inventario:', error);
@@ -247,13 +328,13 @@ app.put('/inventario/:id', async (req, res) => {
 app.delete('/inventario/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const [result] = await db.execute('DELETE FROM INVENTARIO WHERE id = ?', [id]);
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Registro de inventario no encontrado' });
     }
-    
+
     res.json({ message: 'Registro de inventario eliminado exitosamente' });
   } catch (error) {
     console.error('Error al eliminar registro de inventario:', error);
@@ -262,9 +343,6 @@ app.delete('/inventario/:id', async (req, res) => {
 });
 
 // Rutas para proveedores
-// Rutas para proveedores - Agregar en tu archivo de rutas
-
-// GET - Obtener todos los proveedores
 app.get('/proveedores', async (req, res) => {
   try {
     const query = 'SELECT * FROM PROVEEDORES ORDER BY fecha_registro DESC';
@@ -276,17 +354,16 @@ app.get('/proveedores', async (req, res) => {
   }
 });
 
-// GET - Obtener un proveedor por ID
 app.get('/proveedores/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const query = 'SELECT * FROM PROVEEDORES WHERE id = ?';
     const [rows] = await db.execute(query, [id]);
-    
+
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Proveedor no encontrado' });
     }
-    
+
     res.json(rows[0]);
   } catch (error) {
     console.error('Error al obtener proveedor:', error);
@@ -294,12 +371,10 @@ app.get('/proveedores/:id', async (req, res) => {
   }
 });
 
-// POST - Crear nuevo proveedor
 app.post('/proveedores', async (req, res) => {
   try {
     const { nombre, empresa, telefono, email, direccion, ciudad, tipo_proveedor, estado } = req.body;
-    
-    // Validación básica
+
     if (!nombre) {
       return res.status(400).json({ error: 'El nombre es requerido' });
     }
@@ -309,7 +384,7 @@ app.post('/proveedores', async (req, res) => {
       (nombre, empresa, telefono, email, direccion, ciudad, tipo_proveedor, estado) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
+
     const [result] = await db.execute(query, [
       nombre,
       empresa || null,
@@ -320,10 +395,10 @@ app.post('/proveedores', async (req, res) => {
       tipo_proveedor || 'Mayorista',
       estado || 'Activo'
     ]);
-    
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Proveedor creado exitosamente' 
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Proveedor creado exitosamente'
     });
   } catch (error) {
     console.error('Error al crear proveedor:', error);
@@ -331,13 +406,11 @@ app.post('/proveedores', async (req, res) => {
   }
 });
 
-// PUT - Actualizar proveedor
 app.put('/proveedores/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, empresa, telefono, email, direccion, ciudad, tipo_proveedor, estado } = req.body;
-    
-    // Validación básica
+
     if (!nombre) {
       return res.status(400).json({ error: 'El nombre es requerido' });
     }
@@ -348,7 +421,7 @@ app.put('/proveedores/:id', async (req, res) => {
           direccion = ?, ciudad = ?, tipo_proveedor = ?, estado = ?
       WHERE id = ?
     `;
-    
+
     const [result] = await db.execute(query, [
       nombre,
       empresa || null,
@@ -360,11 +433,11 @@ app.put('/proveedores/:id', async (req, res) => {
       estado || 'Activo',
       id
     ]);
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Proveedor no encontrado' });
     }
-    
+
     res.json({ message: 'Proveedor actualizado exitosamente' });
   } catch (error) {
     console.error('Error al actualizar proveedor:', error);
@@ -372,18 +445,17 @@ app.put('/proveedores/:id', async (req, res) => {
   }
 });
 
-// DELETE - Eliminar proveedor
 app.delete('/proveedores/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const query = 'DELETE FROM PROVEEDORES WHERE id = ?';
     const [result] = await db.execute(query, [id]);
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Proveedor no encontrado' });
     }
-    
+
     res.json({ message: 'Proveedor eliminado exitosamente' });
   } catch (error) {
     console.error('Error al eliminar proveedor:', error);
@@ -402,7 +474,6 @@ app.get('/sucursales', async (req, res) => {
   }
 });
 
-// Obtener solo sucursales activas
 app.get('/sucursales/activas', async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM sucursales WHERE estado = "activa" ORDER BY nombre');
@@ -426,9 +497,9 @@ app.post('/sucursales', async (req, res) => {
       [nombre, tipo, ubicacion, estado || 'activa']
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Sucursal creada exitosamente' 
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Sucursal creada exitosamente'
     });
   } catch (error) {
     console.error('Error al crear sucursal:', error);
@@ -474,7 +545,6 @@ app.delete('/sucursales/:id', async (req, res) => {
   }
 });
 
-// Endpoint para cambiar estado de sucursal (activa/inactiva)
 app.patch('/sucursales/:id/estado', async (req, res) => {
   try {
     const { id } = req.params;
@@ -504,27 +574,27 @@ app.patch('/sucursales/:id/estado', async (req, res) => {
 app.get('/ventas-diarias', async (req, res) => {
   try {
     const { fecha_inicio, fecha_fin, sucursal_id } = req.query;
-    
+
     let query = 'SELECT * FROM vista_ventas_diarias WHERE 1=1';
     let params = [];
-    
+
     if (fecha_inicio) {
       query += ' AND fecha_venta >= ?';
       params.push(fecha_inicio);
     }
-    
+
     if (fecha_fin) {
       query += ' AND fecha_venta <= ?';
       params.push(fecha_fin);
     }
-    
+
     if (sucursal_id) {
       query += ' AND sucursal_id = ?';
       params.push(sucursal_id);
     }
-    
+
     query += ' ORDER BY fecha_venta DESC, sucursal_nombre';
-    
+
     const [rows] = await db.execute(query, params);
     res.json(rows);
   } catch (error) {
@@ -533,12 +603,11 @@ app.get('/ventas-diarias', async (req, res) => {
   }
 });
 
-// Obtener ventas de hoy
 app.get('/ventas-diarias/hoy', async (req, res) => {
   try {
     const hoy = new Date().toISOString().split('T')[0];
     const [rows] = await db.execute(
-      'SELECT * FROM vista_ventas_diarias WHERE fecha_venta = ? ORDER BY sucursal_nombre', 
+      'SELECT * FROM vista_ventas_diarias WHERE fecha_venta = ? ORDER BY sucursal_nombre',
       [hoy]
     );
     res.json(rows);
@@ -548,11 +617,10 @@ app.get('/ventas-diarias/hoy', async (req, res) => {
   }
 });
 
-// Obtener resumen de ventas por período
 app.get('/ventas-diarias/resumen', async (req, res) => {
   try {
     const { fecha_inicio, fecha_fin } = req.query;
-    
+
     let query = `
       SELECT 
         sucursal_id,
@@ -567,21 +635,21 @@ app.get('/ventas-diarias/resumen', async (req, res) => {
       FROM vista_ventas_diarias 
       WHERE 1=1
     `;
-    
+
     let params = [];
-    
+
     if (fecha_inicio) {
       query += ' AND fecha_venta >= ?';
       params.push(fecha_inicio);
     }
-    
+
     if (fecha_fin) {
       query += ' AND fecha_venta <= ?';
       params.push(fecha_fin);
     }
-    
+
     query += ' GROUP BY sucursal_id, sucursal_nombre, sucursal_tipo ORDER BY total_ventas DESC';
-    
+
     const [rows] = await db.execute(query, params);
     res.json(rows);
   } catch (error) {
@@ -590,7 +658,6 @@ app.get('/ventas-diarias/resumen', async (req, res) => {
   }
 });
 
-// Crear nueva venta diaria
 app.post('/ventas-diarias', async (req, res) => {
   try {
     const { sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado } = req.body;
@@ -599,7 +666,6 @@ app.post('/ventas-diarias', async (req, res) => {
       return res.status(400).json({ message: 'Sucursal y fecha de venta son requeridos' });
     }
 
-    // Verificar que la sucursal existe y está activa
     const [sucursal] = await db.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
     if (sucursal.length === 0) {
       return res.status(400).json({ message: 'La sucursal no existe o está inactiva' });
@@ -610,19 +676,19 @@ app.post('/ventas-diarias', async (req, res) => {
        (sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        sucursal_id, 
-        fecha_venta, 
-        venta_efectivo || 0, 
-        venta_tarjeta || 0, 
-        venta_sinpe || 0, 
-        observaciones || '', 
+        sucursal_id,
+        fecha_venta,
+        venta_efectivo || 0,
+        venta_tarjeta || 0,
+        venta_sinpe || 0,
+        observaciones || '',
         estado || 'pendiente'
       ]
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Venta diaria registrada exitosamente' 
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Venta diaria registrada exitosamente'
     });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
@@ -633,13 +699,11 @@ app.post('/ventas-diarias', async (req, res) => {
   }
 });
 
-// Actualizar venta diaria
 app.put('/ventas-diarias/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado } = req.body;
 
-    // Verificar que la sucursal existe y está activa
     const [sucursal] = await db.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
     if (sucursal.length === 0) {
       return res.status(400).json({ message: 'La sucursal no existe o está inactiva' });
@@ -667,7 +731,6 @@ app.put('/ventas-diarias/:id', async (req, res) => {
   }
 });
 
-// Eliminar venta diaria
 app.delete('/ventas-diarias/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -685,7 +748,6 @@ app.delete('/ventas-diarias/:id', async (req, res) => {
   }
 });
 
-// Cambiar estado de venta diaria
 app.patch('/ventas-diarias/:id/estado', async (req, res) => {
   try {
     const { id } = req.params;
@@ -711,19 +773,18 @@ app.patch('/ventas-diarias/:id/estado', async (req, res) => {
   }
 });
 
-// Obtener estadísticas generales
 app.get('/ventas-diarias/estadisticas', async (req, res) => {
   try {
     const { fecha_inicio, fecha_fin } = req.query;
-    
+
     let whereClause = '1=1';
     let params = [];
-    
+
     if (fecha_inicio) {
       whereClause += ' AND fecha_venta >= ?';
       params.push(fecha_inicio);
     }
-    
+
     if (fecha_fin) {
       whereClause += ' AND fecha_venta <= ?';
       params.push(fecha_fin);
@@ -753,7 +814,7 @@ app.get('/ventas-diarias/estadisticas', async (req, res) => {
 
 async function startServer() {
   await connectDB();
-  
+
   app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
   });
