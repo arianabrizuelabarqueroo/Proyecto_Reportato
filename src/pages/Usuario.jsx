@@ -13,6 +13,9 @@ const Usuario = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
+  const rolUsuario = localStorage.getItem("rol");
+
+
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
@@ -205,10 +208,16 @@ const Usuario = () => {
                     Gestión de Usuarios
                   </h3>
                   <p className="text-muted mb-0">Administra los usuarios del sistema</p>
-                </div>
-                <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
+
+                {/* <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
                   <i className="fas fa-plus me-1"></i> Nuevo Usuario
-                </button>
+                </button> */}
+                
+                {rolUsuario === "Administrador" && (
+                  <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
+                    <i className="fas fa-plus me-1"></i> Nuevo Usuario
+                  </button>
+                )}
               </div>
             </div>
 
@@ -280,7 +289,8 @@ const Usuario = () => {
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Rol</th>
-                        <th>Acciones</th>
+                        {rolUsuario === "Administrador" && <th>Rol</th>}
+                        {/* <th>Acciones</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -301,20 +311,41 @@ const Usuario = () => {
                             </td>
                             <td>
                               <div className="d-flex gap-2">
-                                <button
+                                {/* <button
                                   className="btn btn-sm btn-outline-primary"
                                   onClick={() => handleEdit(usuario)}
                                   title="Editar"
                                 >
                                   <i className="fas fa-edit"></i>
-                                </button>
-                                <button
+                                </button> */}
+                                {rolUsuario === "Administrador" && (
+                                  <button
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={() => handleEdit(usuario)}
+                                    title="Editar Rol"
+                                  >
+                                    <i className="fa-solid fa-pen"></i>
+                                  </button>
+                                )}
+
+                                {rolUsuario === "Administrador" && (
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => handleDelete(usuario.id)}
+                                    title="Eliminar"
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                  </button>
+                                )}
+
+                                {/* <button
                                   className="btn btn-sm btn-outline-danger"
                                   onClick={() => handleDelete(usuario.id)}
                                   title="Eliminar"
                                 >
                                   <i className="fas fa-trash"></i>
-                                </button>
+                                </button> */}
+
                               </div>
                             </td>
                           </tr>
@@ -452,6 +483,7 @@ const Usuario = () => {
         showCopyButton={alertConfig.showCopyButton}
         copyText={alertConfig.copyText}
       />
+    </div>
     </div>
   );
 };
