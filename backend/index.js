@@ -500,6 +500,257 @@ app.patch('/sucursales/:id/estado', async (req, res) => {
   }
 });
 
+// Rutas para ventas diarias
+app.get('/ventas-diarias', async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin, sucursal_id } = req.query;
+    
+    let query = 'SELECT * FROM vista_ventas_diarias WHERE 1=1';
+    let params = [];
+    
+    if (fecha_inicio) {
+      query += ' AND fecha_venta >= ?';
+      params.push(fecha_inicio);
+    }
+    
+    if (fecha_fin) {
+      query += ' AND fecha_venta <= ?';
+      params.push(fecha_fin);
+    }
+    
+    if (sucursal_id) {
+      query += ' AND sucursal_id = ?';
+      params.push(sucursal_id);
+    }
+    
+    query += ' ORDER BY fecha_venta DESC, sucursal_nombre';
+    
+    const [rows] = await db.execute(query, params);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener ventas diarias:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Obtener ventas de hoy
+app.get('/ventas-diarias/hoy', async (req, res) => {
+  try {
+    const hoy = new Date().toISOString().split('T')[0];
+    const [rows] = await db.execute(
+      'SELECT * FROM vista_ventas_diarias WHERE fecha_venta = ? ORDER BY sucursal_nombre', 
+      [hoy]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener ventas de hoy:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Obtener resumen de ventas por período
+app.get('/ventas-diarias/resumen', async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin } = req.query;
+    
+    let query = `
+      SELECT 
+        sucursal_id,
+        sucursal_nombre,
+        sucursal_tipo,
+        COUNT(*) as dias_registrados,
+        SUM(venta_efectivo) as total_efectivo,
+        SUM(venta_tarjeta) as total_tarjeta,
+        SUM(venta_sinpe) as total_sinpe,
+        SUM(venta_total) as total_ventas,
+        AVG(venta_total) as promedio_diario
+      FROM vista_ventas_diarias 
+      WHERE 1=1
+    `;
+    
+    let params = [];
+    
+    if (fecha_inicio) {
+      query += ' AND fecha_venta >= ?';
+      params.push(fecha_inicio);
+    }
+    
+    if (fecha_fin) {
+      query += ' AND fecha_venta <= ?';
+      params.push(fecha_fin);
+    }
+    
+    query += ' GROUP BY sucursal_id, sucursal_nombre, sucursal_tipo ORDER BY total_ventas DESC';
+    
+    const [rows] = await db.execute(query, params);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener resumen de ventas:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Crear nueva venta diaria
+app.post('/ventas-diarias', async (req, res) => {
+  try {
+    const { sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado } = req.body;
+
+    if (!sucursal_id || !fecha_venta) {
+      return res.status(400).json({ message: 'Sucursal y fecha de venta son requeridos' });
+    }
+
+    // Verificar que la sucursal existe y está activa
+    const [sucursal] = await db.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
+    if (sucursal.length === 0) {
+      return res.status(400).json({ message: 'La sucursal no existe o está inactiva' });
+    }
+
+    const [result] = await db.execute(
+      `INSERT INTO ventas_diarias 
+       (sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        sucursal_id, 
+        fecha_venta, 
+        venta_efectivo || 0, 
+        venta_tarjeta || 0, 
+        venta_sinpe || 0, 
+        observaciones || '', 
+        estado || 'pendiente'
+      ]
+    );
+
+    res.status(201).json({ 
+      id: result.insertId, 
+      message: 'Venta diaria registrada exitosamente' 
+    });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ message: 'Ya existe un registro de ventas para esta sucursal en esta fecha' });
+    }
+    console.error('Error al crear venta diaria:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Actualizar venta diaria
+app.put('/ventas-diarias/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado } = req.body;
+
+    // Verificar que la sucursal existe y está activa
+    const [sucursal] = await db.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
+    if (sucursal.length === 0) {
+      return res.status(400).json({ message: 'La sucursal no existe o está inactiva' });
+    }
+
+    const [result] = await db.execute(
+      `UPDATE ventas_diarias 
+       SET sucursal_id = ?, fecha_venta = ?, venta_efectivo = ?, venta_tarjeta = ?, 
+           venta_sinpe = ?, observaciones = ?, estado = ?
+       WHERE id = ?`,
+      [sucursal_id, fecha_venta, venta_efectivo || 0, venta_tarjeta || 0, venta_sinpe || 0, observaciones || '', estado, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Venta diaria no encontrada' });
+    }
+
+    res.json({ message: 'Venta diaria actualizada exitosamente' });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ message: 'Ya existe un registro de ventas para esta sucursal en esta fecha' });
+    }
+    console.error('Error al actualizar venta diaria:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Eliminar venta diaria
+app.delete('/ventas-diarias/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute('DELETE FROM ventas_diarias WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Venta diaria no encontrada' });
+    }
+
+    res.json({ message: 'Venta diaria eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar venta diaria:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Cambiar estado de venta diaria
+app.patch('/ventas-diarias/:id/estado', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!['pendiente', 'confirmada', 'cerrada'].includes(estado)) {
+      return res.status(400).json({ message: 'Estado debe ser "pendiente", "confirmada" o "cerrada"' });
+    }
+
+    const [result] = await db.execute(
+      'UPDATE ventas_diarias SET estado = ? WHERE id = ?',
+      [estado, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Venta diaria no encontrada' });
+    }
+
+    res.json({ message: `Venta diaria marcada como ${estado} exitosamente` });
+  } catch (error) {
+    console.error('Error al cambiar estado de venta diaria:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Obtener estadísticas generales
+app.get('/ventas-diarias/estadisticas', async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin } = req.query;
+    
+    let whereClause = '1=1';
+    let params = [];
+    
+    if (fecha_inicio) {
+      whereClause += ' AND fecha_venta >= ?';
+      params.push(fecha_inicio);
+    }
+    
+    if (fecha_fin) {
+      whereClause += ' AND fecha_venta <= ?';
+      params.push(fecha_fin);
+    }
+
+    const [stats] = await db.execute(`
+      SELECT 
+        COUNT(*) as total_registros,
+        COUNT(DISTINCT sucursal_id) as sucursales_activas,
+        SUM(venta_total) as total_ventas,
+        AVG(venta_total) as promedio_venta,
+        SUM(venta_efectivo) as total_efectivo,
+        SUM(venta_tarjeta) as total_tarjeta,
+        SUM(venta_sinpe) as total_sinpe,
+        MAX(venta_total) as venta_maxima,
+        MIN(venta_total) as venta_minima
+      FROM vista_ventas_diarias 
+      WHERE ${whereClause}
+    `, params);
+
+    res.json(stats[0]);
+  } catch (error) {
+    console.error('Error al obtener estadísticas:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 async function startServer() {
   await connectDB();
   

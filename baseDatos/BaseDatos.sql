@@ -50,6 +50,20 @@ CREATE TABLE IF NOT EXISTS INVENTARIO (
     FOREIGN KEY (producto_id) REFERENCES PRODUCTOS(id) ON DELETE CASCADE
 );
 
+-- Crear tabla de Sucursales/Puntos de Ventasucursales
+CREATE TABLE IF NOT EXISTS sucursales (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(255) NOT NULL,
+  tipo ENUM('verdulería', 'exportación', 'feria', 'mayorista') NOT NULL DEFAULT 'verdulería',
+  ubicacion VARCHAR(500) NOT NULL,
+  estado ENUM('activa', 'inactiva') NOT NULL DEFAULT 'activa',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_tipo (tipo),
+  INDEX idx_estado (estado),
+  INDEX idx_nombre (nombre)
+);
+
 -- Insertar usuarios
 INSERT INTO USUARIOS (NOMBRE, ROL, CORREO, CONTRASENA) VALUES
 ('Carlos Pérez', 'Administrador', 'carlos@correo.com', '$2y$10$abcdefgHIJKLMNOpqrstuvWXyz1234567890abcdefgHIJKLMNO'),
@@ -91,3 +105,52 @@ INSERT INTO PROVEEDORES (nombre, empresa, telefono, email, direccion, ciudad, ti
 ('Sofía Hernández', 'Distribuciones Hernández', '+506 8888-6666', 'sofia@dihernandez.com', 'Limón, Puerto Viejo', 'Limón', 'Distribuidor'),
 ('Diego Morales', 'Verduras Frescas Morales', '+506 8888-7777', 'diego@verdurasmorales.com', 'Guanacaste, Liberia Centro', 'Guanacaste', 'Mayorista'),
 ('Patricia Castro', 'Frutas Tropicales Castro', '+506 8888-8888', 'patricia@tropicales.com', 'San José, Pavas', 'San José', 'Productor');
+
+
+-- Tabla para el registro de ventas diarias por punto de venta
+CREATE TABLE ventas_diarias (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sucursal_id INT NOT NULL,
+  fecha_venta DATE NOT NULL,
+  venta_efectivo DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  venta_tarjeta DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  venta_sinpe DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  venta_total DECIMAL(12,2) GENERATED ALWAYS AS (venta_efectivo + venta_tarjeta + venta_sinpe) STORED,
+  observaciones TEXT,
+  estado ENUM('pendiente', 'confirmada', 'cerrada') NOT NULL DEFAULT 'pendiente',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  -- Claves foráneas
+  FOREIGN KEY (sucursal_id) REFERENCES sucursales(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  
+  -- Índices
+  INDEX idx_sucursal_fecha (sucursal_id, fecha_venta),
+  INDEX idx_fecha (fecha_venta),
+  INDEX idx_estado (estado),
+  INDEX idx_sucursal (sucursal_id),
+  
+  -- Restricción única: una venta por sucursal por día
+  UNIQUE KEY unique_sucursal_fecha (sucursal_id, fecha_venta)
+);
+
+-- Vista para facilitar consultas con información de sucursales
+CREATE VIEW vista_ventas_diarias AS
+SELECT 
+  vd.id,
+  vd.sucursal_id,
+  s.nombre as sucursal_nombre,
+  s.tipo as sucursal_tipo,
+  s.ubicacion as sucursal_ubicacion,
+  vd.fecha_venta,
+  vd.venta_efectivo,
+  vd.venta_tarjeta,
+  vd.venta_sinpe,
+  vd.venta_total,
+  vd.observaciones,
+  vd.estado,
+  vd.created_at,
+  vd.updated_at
+FROM ventas_diarias vd
+INNER JOIN sucursales s ON vd.sucursal_id = s.id
+ORDER BY vd.fecha_venta DESC, s.nombre;
