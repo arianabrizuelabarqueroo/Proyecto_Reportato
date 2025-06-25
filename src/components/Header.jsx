@@ -1,6 +1,16 @@
 import React from 'react';
+import { useAuth } from '../components/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();           // Limpia el usuario del contexto y localStorage
+    navigate('/login'); // Redirige al login
+  };
+
   return (
     <header className="bg-white shadow-sm border-bottom sticky-top">
       <div className="container-fluid px-4">
@@ -35,8 +45,10 @@ const Header = () => {
                   <i className="fas fa-user"></i>
                 </div>
                 <div className="text-start d-none d-md-block">
-                  <div className="fw-semibold small">Juan Pérez</div>
-                  <div className="text-muted" style={{fontSize: '0.75rem'}}>Administrador</div>
+                  <div className="fw-semibold small">{user?.nombre || 'Usuario'}</div>
+                  <div className="text-muted" style={{fontSize: '0.75rem'}}>
+                    {user?.rol || 'Rol'}
+                  </div>
                 </div>
               </button>
               <ul className="dropdown-menu dropdown-menu-end shadow border-0">
@@ -60,10 +72,10 @@ const Header = () => {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <a className="dropdown-item py-2 text-danger" href="#">
+                  <button className="dropdown-item py-2 text-danger" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt me-2"></i>
                     Cerrar Sesión
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>

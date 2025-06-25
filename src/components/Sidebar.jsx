@@ -83,6 +83,12 @@ const Sidebar = () => {
       active: false,
       href: "usuario",
     },
+    {
+      title: "Sucursales",
+      icon: "fas fa-user-shield",
+      active: false,
+      href: "sucursales",
+    },
   ];
 
   return (
