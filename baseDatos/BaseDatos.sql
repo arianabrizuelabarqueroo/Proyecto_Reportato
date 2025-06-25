@@ -154,3 +154,6 @@ SELECT
 FROM ventas_diarias vd
 INNER JOIN sucursales s ON vd.sucursal_id = s.id
 ORDER BY vd.fecha_venta DESC, s.nombre;
+
+
+ALTER TABLE usuarios ADD COLUMN contrasena_temporal BOOLEAN DEFAULT TRUE;

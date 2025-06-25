@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/custom.css';
+import CustomAlert from '../components/CustomAlert';
 
 const Usuario = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -16,6 +17,15 @@ const Usuario = () => {
     nombre: '',
     correo: '',
     rol: 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
+  });
+
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    showCopyButton: false,
+    copyText: ''
   });
 
   useEffect(() => {
@@ -47,10 +57,10 @@ const Usuario = () => {
 
   const filteredUsuarios = usuarios.filter(usuario => {
     if (!searchTerm) return true;
-    
+
     return safeStringFilter(usuario.nombre, searchTerm) ||
-           safeStringFilter(usuario.correo, searchTerm) ||
-           safeStringFilter(usuario.rol, searchTerm);
+      safeStringFilter(usuario.correo, searchTerm) ||
+      safeStringFilter(usuario.rol, searchTerm);
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -66,8 +76,8 @@ const Usuario = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = editingUsuario ? 'PUT' : 'POST';
-    const url = editingUsuario 
-      ? `http://localhost:3001/usuarios/${editingUsuario.id}` 
+    const url = editingUsuario
+      ? `http://localhost:3001/usuarios/${editingUsuario.id}`
       : 'http://localhost:3001/usuarios';
 
     try {
@@ -78,19 +88,46 @@ const Usuario = () => {
       });
 
       if (response.ok) {
+        const result = await response.json();
+
+        // Si es un nuevo usuario, mostrar la contraseña temporal
+        if (!editingUsuario && result.contrasenaTemp) {
+          setAlertConfig({
+            isOpen: true,
+            title: '¡Usuario creado exitosamente!',
+            message: 'Se ha generado una contraseña temporal. Compártela con el usuario para que pueda acceder al sistema.',
+            type: 'password',
+            showCopyButton: true,
+            copyText: result.contrasenaTemp
+          });
+        } else {
+          setAlertConfig({
+            isOpen: true,
+            title: '¡Éxito!',
+            message: 'Usuario actualizado exitosamente',
+            type: 'success'
+          });
+        }
+
         await fetchUsuarios();
         resetForm();
-        // Agregar mensaje de éxito (opcional)
-        console.log(editingUsuario ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente');
       } else {
-        // Mejorar manejo de errores
         const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
-        console.error('Error al guardar usuario:', errorData.message);
-        alert(`Error: ${errorData.message}`);
+        setAlertConfig({
+          isOpen: true,
+          title: 'Error',
+          message: errorData.message,
+          type: 'error'
+        });
       }
     } catch (error) {
       console.error('Error al guardar usuario:', error);
-      alert('Error de conexión. Por favor, intenta nuevamente.');
+      setAlertConfig({
+        isOpen: true,
+        title: 'Error de conexión',
+        message: 'No se pudo conectar con el servidor. Por favor, intenta nuevamente.',
+        type: 'error'
+      });
     }
   };
 
@@ -107,8 +144,8 @@ const Usuario = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Deseas eliminar este usuario?')) {
       try {
-        const response = await fetch(`http://localhost:3001/usuarios/${id}`, { 
-          method: 'DELETE' 
+        const response = await fetch(`http://localhost:3001/usuarios/${id}`, {
+          method: 'DELETE'
         });
         if (response.ok) {
           await fetchUsuarios();
@@ -253,13 +290,12 @@ const Usuario = () => {
                             <td>{usuario.nombre || 'N/A'}</td>
                             <td>{usuario.correo || 'N/A'}</td>
                             <td>
-                              <span className={`badge ${
-                                usuario.rol?.toLowerCase() === 'administrador' 
-                                  ? 'bg-primary' 
+                              <span className={`badge ${usuario.rol?.toLowerCase() === 'administrador'
+                                  ? 'bg-primary'
                                   : usuario.rol?.toLowerCase() === 'organizador'
-                                  ? 'bg-success'
-                                  : 'bg-secondary'
-                              }`}>
+                                    ? 'bg-success'
+                                    : 'bg-secondary'
+                                }`}>
                                 {usuario.rol || 'N/A'}
                               </span>
                             </td>
@@ -305,8 +341,8 @@ const Usuario = () => {
                 <nav>
                   <ul className="pagination">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
                       >
@@ -315,8 +351,8 @@ const Usuario = () => {
                     </li>
                     {[...Array(totalPages)].map((_, index) => (
                       <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                        <button 
-                          className="page-link" 
+                        <button
+                          className="page-link"
                           onClick={() => paginate(index + 1)}
                         >
                           {index + 1}
@@ -324,8 +360,8 @@ const Usuario = () => {
                       </li>
                     ))}
                     <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
                       >
@@ -406,6 +442,16 @@ const Usuario = () => {
           </div>
         </div>
       </div>
+      {/* Custom Alert */}
+      <CustomAlert
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        showCopyButton={alertConfig.showCopyButton}
+        copyText={alertConfig.copyText}
+      />
     </div>
   );
 };
