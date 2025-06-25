@@ -130,7 +130,8 @@
 
 /* Efectos hover */
 .hover-bg-light:hover {
-  background-color: #f8f9fa !important;
+  background-color: #fd7e14 !important;
+  color:#ffffff !important;
   transition: all 0.2s ease;
 }
 

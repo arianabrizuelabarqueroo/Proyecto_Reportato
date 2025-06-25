@@ -17,30 +17,22 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/clientes" element={<Clientes />} />
-        <Route path="/fidelizacion" element={<Fidelizacion />} />
-        <Route path="/compras" element={<Compras />} />
-        <Route path="/ventas" element={<Ventas />} />
-        <Route path="/inventario" element={<Inventario />} />
-        <Route path="/usuario" element={<Usuario />} />
-        <Route path="/productos" element={<Productos />} />
-        <Route path="/proveedores" element={<Proveedores />} />
-      </Routes>
-    </BrowserRouter>
     <AuthProvider>
       <Router>
         <Routes>
+          {/* Rutas públicas */}
           <Route path="/login" element={<Login />} />
+
+          {/* Redirección desde "/" a /home si está autenticado */}
           <Route path="/" element={
             <ProtectedRoute>
               <Navigate to="/home" replace />
             </ProtectedRoute>
           } />
+
+          {/* Rutas protegidas */}
           <Route path="/home" element={
-            <ProtectedRoute> 
+            <ProtectedRoute>
               <Home />
             </ProtectedRoute>
           } />
@@ -52,6 +44,11 @@ function App() {
           <Route path="/fidelizacion" element={
             <ProtectedRoute>
               <Fidelizacion />
+            </ProtectedRoute>
+          } />
+          <Route path="/compras" element={
+            <ProtectedRoute>
+              <Compras />
             </ProtectedRoute>
           } />
           <Route path="/ventas" element={

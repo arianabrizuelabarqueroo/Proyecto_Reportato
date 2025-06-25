@@ -5,19 +5,14 @@ const Sidebar = () => {
     {
       title: "Dashboard",
       icon: "fas fa-home",
-      active: true,
+      active: false,
       href: "",
     },
     {
       title: "Ventas",
-      icon: "fas fa-shopping-cart",
+      icon: "fas fa-cart-shopping",
       active: false,
-      href: "ventas",
-      subItems: [
-        { title: "Nueva Venta", href: "#" },
-        { title: "Historial", href: "#" },
-        { title: "Devoluciones", href: "#" },
-      ],
+      href: "ventas"
     },
     {
       title: "Compras",
@@ -30,11 +25,6 @@ const Sidebar = () => {
       icon: "fas fa-boxes",
       active: false,
       href: "inventario",
-      subItems: [
-        { title: "Productos", href: "#" },
-        { title: "Categorías", href: "#" },
-        { title: "Proveedores", href: "#" },
-      ],
     },
     {
       title: "Clientes",
@@ -50,24 +40,13 @@ const Sidebar = () => {
     },
     {
       title: "Proveedores",
-      icon: "fas fa-users",
+      icon: "fas fa-truck-field",
       active: false,
       href: "proveedores",
     },
-    {
-      title: "Reportes",
-      icon: "fas fa-chart-line",
-      active: false,
-      href: "reportes",
-      subItems: [
-        { title: "Ventas", href: "ventas" },
-        { title: "Inventario", href: "inventario" },
-        { title: "Financiero", href: "#" },
-      ],
-    },
      {
       title: 'Productos',
-      icon: 'fas fa-users',
+      icon: 'fas fa-lemon',
       active: false,
       href: 'productos'
     },
@@ -85,7 +64,7 @@ const Sidebar = () => {
     },
     {
       title: "Sucursales",
-      icon: "fas fa-user-shield",
+      icon: "fas fa-location-dot",
       active: false,
       href: "sucursales",
     },
