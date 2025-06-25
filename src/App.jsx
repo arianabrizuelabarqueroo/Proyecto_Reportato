@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import Clientes from './pages/Clientes';
 import Fidelizacion from './pages/Fidelizacion';
+import Compras from './pages/Compras';
 import Ventas from './pages/Ventas';
 import Inventario from './pages/Inventario';
 import Proveedores from './pages/Proveedores';
@@ -16,6 +17,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/clientes" element={<Clientes />} />
+        <Route path="/fidelizacion" element={<Fidelizacion />} />
+        <Route path="/compras" element={<Compras />} />
+        <Route path="/ventas" element={<Ventas />} />
+        <Route path="/inventario" element={<Inventario />} />
+        <Route path="/usuario" element={<Usuario />} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/proveedores" element={<Proveedores />} />
+      </Routes>
+    </BrowserRouter>
     <AuthProvider>
       <Router>
         <Routes>

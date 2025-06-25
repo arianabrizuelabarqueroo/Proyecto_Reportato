@@ -54,6 +54,29 @@ CREATE TABLE IF NOT EXISTS INVENTARIO (
     FOREIGN KEY (producto_id) REFERENCES PRODUCTOS(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS FIDELIZACION (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    folio VARCHAR(50) NOT NULL,
+    cliente VARCHAR(100) NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES USUARIOS(id)
+);
+
+CREATE TABLE IF NOT EXISTS COMPRAS (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    proveedor_id INT NOT NULL,
+    fecha_realizada IMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    producto_id INT NOT NULL,
+    precio_unitario DECIMAL(10,2) DEFAULT 0.00,
+    cantidad_producto DECIMAL (10,2) DEFAULT 1.00,
+    total DECIMAL(10,2) DEFAULT 0.00,
+    FOREIGN KEY (usuario_id) REFERENCES USUARIOS(id) ON DELETE CASCADE,
+    FOREIGN KEY (proveedor_id) REFERENCES PROVEEDORES(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES PRODUCTOS(id) ON DELETE CASCADE
+);
+
 -- Crear tabla de Sucursales/Puntos de Ventasucursales
 CREATE TABLE IF NOT EXISTS sucursales (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -109,6 +132,10 @@ INSERT INTO PROVEEDORES (nombre, empresa, telefono, email, direccion, ciudad, ti
 ('Sofía Hernández', 'Distribuciones Hernández', '+506 8888-6666', 'sofia@dihernandez.com', 'Limón, Puerto Viejo', 'Limón', 'Distribuidor'),
 ('Diego Morales', 'Verduras Frescas Morales', '+506 8888-7777', 'diego@verdurasmorales.com', 'Guanacaste, Liberia Centro', 'Guanacaste', 'Mayorista'),
 ('Patricia Castro', 'Frutas Tropicales Castro', '+506 8888-8888', 'patricia@tropicales.com', 'San José, Pavas', 'San José', 'Productor');
+
+INSERT INTO COMPRAS (usuario_id, proveedor_id, fecha_realizada, producto_id, precio_unitario, cantidad_producto, total) VALUES
+(1,3,'2024-01-16',1,1.5,5,7.5),
+(2,5,'2024-01-16',1,1.0,6,6.0);
 
 
 -- Tabla para el registro de ventas diarias por punto de venta

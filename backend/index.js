@@ -463,6 +463,13 @@ app.delete('/proveedores/:id', async (req, res) => {
   }
 });
 
+// Rutas para fidelizacion - NUEVO
+app.get('/fidelizacion', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM fidelizacion ORDER BY cliente');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener fidelizacion:', error);
 // Rutas para sucursales/puntos de venta
 app.get('/sucursales', async (req, res) => {
   try {
@@ -474,6 +481,26 @@ app.get('/sucursales', async (req, res) => {
   }
 });
 
+//CREAR NUEVO USUARIO FIDELIZACION
+app.post('/fidelizacion', async (req, res) => {
+  try {
+    const { folio, usuario, cliente, categoria } = req.body;
+
+    if (!folio || !usuario) {
+      return res.status(400).json({ message: 'Usuario y folio son requeridos' });
+    }
+
+    const [result] = await db.execute(
+      'INSERT INTO fidelizacion (folio, usuario_id, cliente, categoria) VALUES (?, ?, ?, ?)',
+      [folio, usuario, cliente, categoria]
+    );
+
+    res.status(201).json({ 
+      id: result.insertId, 
+      message: 'Usuario creado exitosamente' 
+    });
+  } catch (error) {
+    console.error('Error al crear usuario fidelizacion:', error);
 app.get('/sucursales/activas', async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM sucursales WHERE estado = "activa" ORDER BY nombre');
@@ -699,6 +726,24 @@ app.post('/ventas-diarias', async (req, res) => {
   }
 });
 
+//ACTUALIZACION/ EDICION DE USUARIO
+app.put('/fidelizacion/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { folio, usuario, cliente, categoria } = req.body;
+
+    const [result] = await db.execute(
+      'UPDATE fidelizacion SET folio = ?, usuario_id = ?, cliente = ?, categoria = ? WHERE id = ?',
+      [folio, usuario, cliente, categoria, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuario fidelizacion no encontrado' });
+    }
+
+    res.json({ message: 'Usuario fidelizacion actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar usuario fidelizacion:', error);
 app.put('/ventas-diarias/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -748,6 +793,20 @@ app.delete('/ventas-diarias/:id', async (req, res) => {
   }
 });
 
+//ELIMINACION DE USUARIO FIDELIZACION 
+app.delete('/fidelizacion/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute('DELETE FROM fidelizacion WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuario fidelizacion no encontrado' });
+    }
+
+    res.json({ message: 'Usuario fidelizacion eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar usuario fidelizacion:', error);
 app.patch('/ventas-diarias/:id/estado', async (req, res) => {
   try {
     const { id } = req.params;
@@ -819,5 +878,80 @@ async function startServer() {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
   });
 }
+
+// Rutas para Compras - NUEVO
+app.get('/compras', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM compras ORDER BY usuario_id');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener compras:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+//CREAR NUEVA COMPRA
+app.post('/compras', async (req, res) => {
+  try {
+    const { usuario, proveedor, fecha, producto, precio, cantidad, total } = req.body;
+
+    if (!usuario || !proveedor) {
+      return res.status(400).json({ message: 'Usuario y proveedor son requeridos' });
+    }
+
+    const [result] = await db.execute(
+      'INSERT INTO COMPRAS (usuario_id, proveedor_id, fecha_realizada, producto_id, precio_unitario, cantidad_producto, total) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [usuario, proveedor, fecha, producto, precio, cantidad, total]
+    );
+
+    res.status(201).json({ 
+      id: result.insertId, 
+      message: 'Compra creada exitosamente' 
+    });
+  } catch (error) {
+    console.error('Error al crear la compra:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+//ACTUALIZACION/ EDICION DE COMPRAS
+app.put('/compras/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { usuario, proveedor, fecha, producto, precio, cantidad, total } = req.body;
+
+    const [result] = await db.execute(
+      'UPDATE compras SET usuario_id = ?, proveedor_id = ?, fecha_realizada = ?, producto_id = ?, precio_unitario = ?, cantidad_producto = ?, total = ? WHERE id = ?',
+      [usuario, proveedor, fecha, producto, precio, cantidad, total, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Compra no encontrada' });
+    }
+
+    res.json({ message: 'Compra actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar la compra:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+//ELIMINACION DE COMPRA
+app.delete('/compras/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute('DELETE FROM compras WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Compra no encontrada' });
+    }
+
+    res.json({ message: 'Compra eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar la compra:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
 
 startServer().catch(console.error);

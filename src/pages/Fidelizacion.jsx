@@ -37,12 +37,35 @@ const Fidelizacion = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
+  const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     folio: '',
     cliente: '',
     categoria: ''
   });
+
+  // Cargar usuarios_fideliacion desde la API
+    useEffect(() => {
+      fetchFidelizacion();
+    }, []);
+  
+    const fetchFidelizacion = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:3001/fidelizacion');
+        if (response.ok) {
+          const data = await response.json();
+          setFidelizacion(data);
+        } else {
+          console.error('Error al obtener los usuarios');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // Filtrar fidelizacion por búsqueda
   const filteredFidelizacion = fidelizacion.filter(fidelizacion =>
@@ -65,7 +88,7 @@ const Fidelizacion = () => {
     }));
   };
 
- const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
   // Buscar el cliente por nombre ingresado en el formulario
@@ -76,7 +99,32 @@ const Fidelizacion = () => {
     return;
   }
 
-  if (editingFidelizacion) {
+  try {
+      const url = editingFidelizacion 
+        ? `http://localhost:3001/fidelizacion/${editingFidelizacion.id}`
+        : 'http://localhost:3001/fidelizacion';
+      
+      const method = editingFidelizacion ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await fetchFidelizacion(); // Recargar la lista
+        resetForm();
+      } else {
+        console.error('Error al guardar producto');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+/* EDICION SIN BASE DE DATOS
+if (editingFidelizacion) {
     // Actualizar fidelización existente
     setFidelizacion(prev => prev.map(fidelizacion =>
       fidelizacion.id === editingFidelizacion.id
@@ -95,6 +143,8 @@ const Fidelizacion = () => {
   }
 
   resetForm();
+*/
+
 };
 
   const resetForm = () => {
@@ -120,18 +170,53 @@ const Fidelizacion = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+      try {
+        const response = await fetch(`http://localhost:3001/fidelizacion/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          await fetchFidelizacion(); // Recargar la lista
+        } else {
+          console.error('Error al eliminar usuario');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    /*
     if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
       setFidelizacion(prev => prev.filter(fidelizacion => fidelizacion.id !== id));
     }
+    */
   };
 
   const buscarClientePorNombre = (nombreBuscado) => {
   return Clientes.find(Clientes => Clientes.nombre.toLowerCase() === nombreBuscado.toLowerCase());
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('es-ES');
+  };
 
-
+  if (loading) {
+    return (
+      <div className="app-layout bg-light">
+        <Sidebar />
+        <div className="main-content">
+          <Header />
+          <div className="content-area d-flex justify-content-center align-items-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="app-layout bg-light">
       <Sidebar />
@@ -289,7 +374,7 @@ const Fidelizacion = () => {
                           </td>
                           <td className="px-4 py-3">
                             <span className="small text-muted">
-                              {new Date(fidelizacion.fechaRegistro).toLocaleDateString('es-ES')}
+                              {formatDate(fidelizacion.fechaRegistro)}
                             </span>
                           </td>
                           <td className="px-4 py-3">
