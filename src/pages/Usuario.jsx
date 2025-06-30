@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/custom.css';
+import CustomAlert from '../components/CustomAlert';
 
 const Usuario = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -12,10 +13,22 @@ const Usuario = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
+  const rolUsuario = localStorage.getItem("rol");
+
+
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
-    rol: 'Empleado'
+    rol: 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
+  });
+
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    showCopyButton: false,
+    copyText: ''
   });
 
   useEffect(() => {
@@ -33,7 +46,7 @@ const Usuario = () => {
       setUsuarios(data);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
-      setUsuarios([]); // Establecer array vacío en caso de error
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -47,10 +60,10 @@ const Usuario = () => {
 
   const filteredUsuarios = usuarios.filter(usuario => {
     if (!searchTerm) return true;
-    
+
     return safeStringFilter(usuario.nombre, searchTerm) ||
-           safeStringFilter(usuario.correo, searchTerm) ||
-           safeStringFilter(usuario.rol, searchTerm);
+      safeStringFilter(usuario.correo, searchTerm) ||
+      safeStringFilter(usuario.rol, searchTerm);
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -66,8 +79,8 @@ const Usuario = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = editingUsuario ? 'PUT' : 'POST';
-    const url = editingUsuario 
-      ? `http://localhost:3001/usuarios/${editingUsuario.id}` 
+    const url = editingUsuario
+      ? `http://localhost:3001/usuarios/${editingUsuario.id}`
       : 'http://localhost:3001/usuarios';
 
     try {
@@ -78,13 +91,46 @@ const Usuario = () => {
       });
 
       if (response.ok) {
+        const result = await response.json();
+
+        // Si es un nuevo usuario, mostrar la contraseña temporal
+        if (!editingUsuario && result.contrasenaTemp) {
+          setAlertConfig({
+            isOpen: true,
+            title: '¡Usuario creado exitosamente!',
+            message: 'Se ha generado una contraseña temporal. Compártela con el usuario para que pueda acceder al sistema.',
+            type: 'password',
+            showCopyButton: true,
+            copyText: result.contrasenaTemp
+          });
+        } else {
+          setAlertConfig({
+            isOpen: true,
+            title: '¡Éxito!',
+            message: 'Usuario actualizado exitosamente',
+            type: 'success'
+          });
+        }
+
         await fetchUsuarios();
         resetForm();
       } else {
-        console.error('Error al guardar usuario:', response.statusText);
+        const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+        setAlertConfig({
+          isOpen: true,
+          title: 'Error',
+          message: errorData.message,
+          type: 'error'
+        });
       }
     } catch (error) {
       console.error('Error al guardar usuario:', error);
+      setAlertConfig({
+        isOpen: true,
+        title: 'Error de conexión',
+        message: 'No se pudo conectar con el servidor. Por favor, intenta nuevamente.',
+        type: 'error'
+      });
     }
   };
 
@@ -93,7 +139,7 @@ const Usuario = () => {
     setFormData({
       nombre: usuario.nombre || '',
       correo: usuario.correo || '',
-      rol: usuario.rol || 'Empleado'
+      rol: usuario.rol || 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
     });
     setShowModal(true);
   };
@@ -101,8 +147,8 @@ const Usuario = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Deseas eliminar este usuario?')) {
       try {
-        const response = await fetch(`http://localhost:3001/usuarios/${id}`, { 
-          method: 'DELETE' 
+        const response = await fetch(`http://localhost:3001/usuarios/${id}`, {
+          method: 'DELETE'
         });
         if (response.ok) {
           await fetchUsuarios();
@@ -116,12 +162,12 @@ const Usuario = () => {
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', correo: '', rol: 'Empleado' });
+    setFormData({ nombre: '', correo: '', rol: 'Usuario' }); // Cambiado de 'Empleado' a 'Usuario'
     setEditingUsuario(null);
     setShowModal(false);
   };
 
-  // Función auxiliar para conteo seguro
+  // Función auxiliar para conteo seguro - CORREGIDA
   const safeCount = (array, condition) => {
     return array.filter(item => {
       if (!item.rol) return false;
@@ -162,10 +208,16 @@ const Usuario = () => {
                     Gestión de Usuarios
                   </h3>
                   <p className="text-muted mb-0">Administra los usuarios del sistema</p>
-                </div>
-                <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
+
+                {/* <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
                   <i className="fas fa-plus me-1"></i> Nuevo Usuario
-                </button>
+                </button> */}
+                
+                {rolUsuario === "Administrador" && (
+                  <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
+                    <i className="fas fa-plus me-1"></i> Nuevo Usuario
+                  </button>
+                )}
               </div>
             </div>
 
@@ -205,7 +257,7 @@ const Usuario = () => {
                     <i className="fas fa-user-tie fa-2x text-primary-green me-3"></i>
                     <div>
                       <h5 className="fw-bold mb-0">
-                        {safeCount(usuarios, rol => rol === 'admin')}
+                        {safeCount(usuarios, rol => rol === 'administrador')}
                       </h5>
                       <small className="text-muted">Administradores</small>
                     </div>
@@ -218,9 +270,9 @@ const Usuario = () => {
                     <i className="fas fa-user fa-2x text-primary-orange me-3"></i>
                     <div>
                       <h5 className="fw-bold mb-0">
-                        {safeCount(usuarios, rol => rol === 'empleado')}
+                        {safeCount(usuarios, rol => rol === 'usuario')}
                       </h5>
-                      <small className="text-muted">Empleados</small>
+                      <small className="text-muted">Usuarios</small>
                     </div>
                   </div>
                 </div>
@@ -237,7 +289,8 @@ const Usuario = () => {
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Rol</th>
-                        <th>Acciones</th>
+                        {rolUsuario === "Administrador" && <th>Rol</th>}
+                        {/* <th>Acciones</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -247,30 +300,52 @@ const Usuario = () => {
                             <td>{usuario.nombre || 'N/A'}</td>
                             <td>{usuario.correo || 'N/A'}</td>
                             <td>
-                              <span className={`badge ${
-                                usuario.rol?.toLowerCase() === 'admin' 
-                                  ? 'bg-primary' 
-                                  : 'bg-secondary'
-                              }`}>
+                              <span className={`badge ${usuario.rol?.toLowerCase() === 'administrador'
+                                  ? 'bg-primary'
+                                  : usuario.rol?.toLowerCase() === 'organizador'
+                                    ? 'bg-success'
+                                    : 'bg-secondary'
+                                }`}>
                                 {usuario.rol || 'N/A'}
                               </span>
                             </td>
                             <td>
                               <div className="d-flex gap-2">
-                                <button
+                                {/* <button
                                   className="btn btn-sm btn-outline-primary"
                                   onClick={() => handleEdit(usuario)}
                                   title="Editar"
                                 >
                                   <i className="fas fa-edit"></i>
-                                </button>
-                                <button
+                                </button> */}
+                                {rolUsuario === "Administrador" && (
+                                  <button
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={() => handleEdit(usuario)}
+                                    title="Editar Rol"
+                                  >
+                                    <i className="fa-solid fa-pen"></i>
+                                  </button>
+                                )}
+
+                                {rolUsuario === "Administrador" && (
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => handleDelete(usuario.id)}
+                                    title="Eliminar"
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                  </button>
+                                )}
+
+                                {/* <button
                                   className="btn btn-sm btn-outline-danger"
                                   onClick={() => handleDelete(usuario.id)}
                                   title="Eliminar"
                                 >
                                   <i className="fas fa-trash"></i>
-                                </button>
+                                </button> */}
+
                               </div>
                             </td>
                           </tr>
@@ -297,8 +372,8 @@ const Usuario = () => {
                 <nav>
                   <ul className="pagination">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
                       >
@@ -307,8 +382,8 @@ const Usuario = () => {
                     </li>
                     {[...Array(totalPages)].map((_, index) => (
                       <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                        <button 
-                          className="page-link" 
+                        <button
+                          className="page-link"
                           onClick={() => paginate(index + 1)}
                         >
                           {index + 1}
@@ -316,8 +391,8 @@ const Usuario = () => {
                       </li>
                     ))}
                     <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
                       >
@@ -375,8 +450,9 @@ const Usuario = () => {
                             onChange={handleInputChange}
                             required
                           >
-                            <option value="Admin">Admin</option>
-                            <option value="Empleado">Empleado</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Organizador">Organizador</option>
+                            <option value="Usuario">Usuario</option>
                           </select>
                         </div>
                       </div>
@@ -397,6 +473,17 @@ const Usuario = () => {
           </div>
         </div>
       </div>
+      {/* Custom Alert */}
+      <CustomAlert
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        showCopyButton={alertConfig.showCopyButton}
+        copyText={alertConfig.copyText}
+      />
+    </div>
     </div>
   );
 };
