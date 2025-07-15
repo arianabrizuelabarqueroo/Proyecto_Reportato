@@ -116,15 +116,15 @@ app.delete('/usuarios/:id', async (req, res) => {
 //CREAR NUEVO USUARIO FIDELIZACION
 app.post('/fidelizacion', async (req, res) => {
   try {
-    const { folio, usuario, cliente, categoria } = req.body;
+    const { cliente, fechaRegistro, categoria } = req.body;
 
-    if (!folio || !usuario) {
-      return res.status(400).json({ message: 'Usuario y folio son requeridos' });
+    if (!cliente || !categoria) {
+      return res.status(400).json({ message: 'Cliente y Categoria son requeridos' });
     }
 
     const [result] = await db.execute(
-      'INSERT INTO fidelizacion (folio, usuario_id, cliente, categoria) VALUES (?, ?, ?, ?)',
-      [folio, usuario, cliente, categoria]
+      'INSERT INTO fidelizacion (cliente, fecha_Afiliacion, categoria) VALUES (?, ?, ?)',
+      [cliente, fechaRegistro, categoria]
     );
 
     res.status(201).json({ 
@@ -140,11 +140,11 @@ app.post('/fidelizacion', async (req, res) => {
 app.put('/fidelizacion/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { folio, usuario, cliente, categoria } = req.body;
+    const {cliente, fechaRegistro, categoria} = req.body;
 
     const [result] = await db.execute(
-      'UPDATE fidelizacion SET folio = ?, usuario_id = ?, cliente = ?, categoria = ? WHERE id = ?',
-      [folio, usuario, cliente, categoria, id]
+      'UPDATE fidelizacion SET cliente = ?,fecha_Afiliacion = ?, categoria = ? WHERE id = ?',
+      [cliente, fechaRegistro, categoria, id]
     );
 
     if (result.affectedRows === 0) {

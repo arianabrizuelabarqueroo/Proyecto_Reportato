@@ -2,47 +2,20 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/custom.css';
-import Clientes from '../pages/Clientes';
 
 const Fidelizacion = () => {
-  const [fidelizacion, setFidelizacion] = useState([
-    {
-      id: 1,
-      usuario: 3,
-      folio: 'V-003',
-      cliente: 'Ana Martínez',
-      fechaRegistro: '2024-03-10',
-      categoria: 'bronce'
-    },
-    {
-      id: 2,
-      usuario: 1,
-      folio: 'V-001',
-      cliente: 'María González',
-      fechaRegistro: '2024-01-15',
-      categoria: 'oro'
-    },
-    {
-      id: 3,
-      usuario: 2,
-      folio: 'V-002',
-      cliente: 'Carlos Rodríguez',
-      fechaRegistro: '2024-02-20',
-      categoria: 'plata'
-    }
-  ]);
-
+  const [fidelizacion, setFidelizacion] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingFidelizacion, setEditingFidelizacion] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(8);
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
-    folio: '',
-    cliente: '',
-    categoria: ''
+    cliente: '' ,
+    fechaRegistro: '',
+    categoria: '' 
   });
 
   // Cargar usuarios_fideliacion desde la API
@@ -70,7 +43,6 @@ const Fidelizacion = () => {
   // Filtrar fidelizacion por búsqueda
   const filteredFidelizacion = fidelizacion.filter(fidelizacion =>
     fidelizacion.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fidelizacion.folio.toLowerCase().includes(searchTerm.toLowerCase()) ||
     fidelizacion.categoria.includes(searchTerm)
   );
 
@@ -90,14 +62,6 @@ const Fidelizacion = () => {
 
  const handleSubmit = async (e) => {
   e.preventDefault();
-
-  // Buscar el cliente por nombre ingresado en el formulario
-  const clienteId = buscarClientePorNombre(formData.cliente);
-
-  if (!clienteId) {
-    alert('Cliente no encontrado');
-    return;
-  }
 
   try {
       const url = editingFidelizacion 
@@ -123,35 +87,14 @@ const Fidelizacion = () => {
     } catch (error) {
       console.error('Error:', error);
     }
-/* EDICION SIN BASE DE DATOS
-if (editingFidelizacion) {
-    // Actualizar fidelización existente
-    setFidelizacion(prev => prev.map(fidelizacion =>
-      fidelizacion.id === editingFidelizacion.id
-        ? { ...fidelizacion, ...formData, usuario: clienteId }
-        : fidelizacion
-    ));
-  } else {
-    // Crear nueva fidelización
-    const newFidelizacion = {
-      id: Date.now(),
-      ...formData,
-      usuario: clienteId, // Aquí se guarda el objeto cliente encontrado
-      fechaRegistro: new Date().toISOString().split('T')[0],
-    };
-    setFidelizacion(prev => [...prev, newFidelizacion]);
-  }
-
-  resetForm();
-*/
 
 };
 
   const resetForm = () => {
     setFormData({
-      folio: '',
-      cliente: '',
-      categoria: ''
+      cliente: '' ,
+      fechaRegistro: '',
+      categoria: '' 
     });
     setEditingFidelizacion(null);
     setShowModal(false);
@@ -161,10 +104,8 @@ if (editingFidelizacion) {
     setEditingFidelizacion(fidelizacion);
     setFormData({
       id: fidelizacion.id,
-      usuario: fidelizacion.usuario,
-      folio: fidelizacion.folio,
       cliente: fidelizacion.cliente,
-      fechaRegistro: fidelizacion.fechaRegistro,
+      fechaRegistro: formatDateForInput(fidelizacion.fechaRegistro),
       categoria: fidelizacion.categoria
     });
     setShowModal(true);
@@ -186,20 +127,52 @@ if (editingFidelizacion) {
         console.error('Error:', error);
       }
     }
-    /*
-    if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      setFidelizacion(prev => prev.filter(fidelizacion => fidelizacion.id !== id));
+  };
+
+  const handleChangeStatus = async (id, newStatus) => {
+    try {
+      const response = await fetch(`http://localhost:3001/fidelizacion/${id}/categoria`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ categoria: newStatus }),
+      });
+
+      if (response.ok) {
+        await fetchFidelizacion();
+      } else {
+        console.error('Error al cambiar la categoria');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
-    */
   };
 
-  const buscarClientePorNombre = (nombreBuscado) => {
-  return Clientes.find(Clientes => Clientes.nombre.toLowerCase() === nombreBuscado.toLowerCase());
-  };
 
-  const formatDate = (dateString) => {
+ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-ES');
   };
+
+  const formatDateForInput = (dateString) => {
+    return new Date(dateString).toISOString().split('T')[0];
+  };
+
+  const getStatusBadgeClass = (categoria) => {
+    switch (categoria.toLowerCase()) {
+    case 'bronce':
+      return 'bg-brown text-white'; 
+    case 'plata':
+      return 'bg-secondary text-white';
+    case 'oro':
+      return 'bg-warning text-dark';
+    case 'diamante':
+      return 'bg-info text-white';
+    default:
+      return 'bg-light text-dark';
+    }
+  };
+
 
   if (loading) {
     return (
@@ -256,81 +229,12 @@ if (editingFidelizacion) {
               </div>
             </div>
 
-            {/* Estadísticas }
-            <div className="row mb-4">
-              <div className="col-xl-3 col-md-6 mb-3">
-                <div className="card border-0 shadow-sm h-100">
-                  <div className="card-body">
-                    <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0">
-                        <div className="avatar bg-primary-purple bg-opacity-20 rounded-circle p-3">
-                          <i className="fas fa-users text-primary-purple fs-4"></i>
-                        </div>
-                      </div>
-                      <div className="flex-grow-1 ms-3">
-                        <div className="fw-bold text-dark fs-4">{fidelizacion.length}</div>
-                        <div className="text-muted small">Total Afiliados</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xl-3 col-md-6 mb-3">
-                <div className="card border-0 shadow-sm h-100">
-                  <div className="card-body">
-                    <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0">
-                        <div className="avatar bg-primary-green bg-opacity-20 rounded-circle p-3">
-                          <i className="fas fa-user-check text-primary-green fs-4"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xl-3 col-md-6 mb-3">
-                <div className="card border-0 shadow-sm h-100">
-                  <div className="card-body">
-                    <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0">
-                        <div className="avatar bg-primary-orange bg-opacity-20 rounded-circle p-3">
-                          <i className="fas fa-calendar-plus text-primary-orange fs-4"></i>
-                        </div>
-                      </div>
-                      <div className="flex-grow-1 ms-3">
-                        <div className="fw-bold text-dark fs-4">
-                          {fidelizacion.filter(c => {
-                            const fechaRegistro = new Date(c.fechaRegistro);
-                            const mesActual = new Date();
-                            return fechaRegistro.getMonth() === mesActual.getMonth();
-                          }).length}
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-              <div className="col-xl-3 col-md-6 mb-3">
-                <div className="card border-0 shadow-sm h-100">
-                  <div className="card-body">
-                    <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0">
-                        <div className="avatar bg-primary-blue bg-opacity-20 rounded-circle p-3">
-                          <i className="fas fa-dollar-sign text-primary-blue fs-4"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tabla de usuarios afiliados */}
+             {/* Tabla de usuarios afiliados */}
             <div className="card border-0 shadow-sm">
               <div className="card-header bg-white border-0 py-3">
                 <div className="row align-items-center">
                   <div className="col-md-6">
-                    <h5 className="card-title mb-0 fw-bold">Lista de Usuarios</h5>
+                    <h5 className="card-title mb-0 fw-bold">Lista de Usuarios Afiliados</h5>
                   </div>
                   <div className="col-md-6">
                     <div className="input-group">
@@ -340,7 +244,7 @@ if (editingFidelizacion) {
                       <input
                         type="text"
                         className="form-control border-start-0"
-                        placeholder="Buscar usuario..."
+                        placeholder="Buscar usuario o categoria..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
@@ -354,7 +258,6 @@ if (editingFidelizacion) {
                     <thead className="bg-light">
                       <tr>
                         <th className="border-0 px-4 py-3">Cliente</th>
-                        <th className="border-0 px-4 py-3">Folios</th>
                         <th className="border-0 px-4 py-3">Fecha de Registro</th>
                         <th className="border-0 px-4 py-3">Categoria</th>
                       </tr>
@@ -368,18 +271,55 @@ if (editingFidelizacion) {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div>
-                              <div className="small text-dark">{fidelizacion.folio}</div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
                             <span className="small text-muted">
                               {formatDate(fidelizacion.fechaRegistro)}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="fw-medium text-dark">{fidelizacion.categoria}</div>
-                          </td>
+                            <div className="dropdown">
+                                <span 
+                                  className={`badge ${getStatusBadgeClass(fidelizacion.categoria)} dropdown-toggle`}
+                                  style={{ cursor: 'pointer' }}
+                                  data-bs-toggle="dropdown"
+                                >
+                                  {fidelizacion.categoria}
+                                </span>
+                                <ul className="dropdown-menu">
+                                  <li>
+                                    <button 
+                                      className="dropdown-item" 
+                                      onClick={() => handleChangeStatus(fidelizacion.id, 'bronce')}
+                                    >
+                                      Bronce
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button 
+                                      className="dropdown-item" 
+                                      onClick={() => handleChangeStatus(fidelizacion.id, 'plata')}
+                                    >
+                                      Plata
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button 
+                                      className="dropdown-item" 
+                                      onClick={() => handleChangeStatus(fidelizacion.id, 'oro')}
+                                    >
+                                      Oro
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button 
+                                      className="dropdown-item" 
+                                      onClick={() => handleChangeStatus(fidelizacion.id, 'diamante')}
+                                    >
+                                      Diamante
+                                    </button>
+                                  </li>
+                                </ul>
+                              </div>
+                          </td> 
                           <td className="px-4 py-3">
                             <div className="d-flex gap-2">
                               <button
@@ -455,7 +395,7 @@ if (editingFidelizacion) {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  {editingFidelizacion ? 'Editar afiliado' : 'Nuevo Usuario de afiliado'}
+                  {editingFidelizacion ? 'Editar afiliado' : 'Nuevo Usuario Afiliado'}
                 </h5>
                 <button
                   type="button"
@@ -467,37 +407,42 @@ if (editingFidelizacion) {
                 <div className="modal-body">
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Nombre Completo *</label>
+                      <label className="form-label">Nombre del Usuario a Afiliar *</label>
                       <input
                         type="text"
                         className="form-control"
                         name="cliente"
                         value={formData.cliente}
-                        onChange={(e) => setFormData({ ...formData, cliente: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Folio *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="folio"
-                        value={formData.folio}
                         onChange={handleInputChange}
                         required
                       />
                     </div>
                     <div className="col-12 mb-3">
-                      <label className="form-label">Categoria</label>
+                      <label className="form-label">Fecha de Afiliacion</label>
                       <input
-                        type="text"
+                        type="date"
                         className="form-control"
-                        name="categoria"
-                        value={formData.categoria}
+                        name="fechaRegistro"
+                        value={formData.fechaRegistro}
                         onChange={handleInputChange}
                         required
                       />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Categoría *</label>
+                      <select
+                        className="form-select"
+                        name="categoria"
+                        value={formData.categoria}
+                        onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                        required
+                      >
+                        <option value="">Seleccione una categoría</option>
+                        <option value="bronce">Bronce</option>
+                        <option value="plata">Plata</option>
+                        <option value="oro">Oro</option>
+                        <option value="diamante">Diamante</option>
+                      </select>
                     </div>
                 </div>
                 <div className="modal-footer">
