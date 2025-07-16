@@ -52,22 +52,23 @@ app.get('/usuarios', async (req, res) => {
 
 app.post('/usuarios', async (req, res) => {
   try {
-    const { nombre, correo, rol, contrasena } = req.body;
+    const { nombre, correo, rol } = req.body;
 
-    if (!nombre || !correo || !contrasena) {
-      return res.status(400).json({ message: 'Nombre, correo y contraseña son requeridos' });
+    if (!nombre || !correo) {
+      return res.status(400).json({ message: 'Nombre y correo son requeridos' });
     }
 
-    // Hashear la contraseña
-    const hashedPassword = await bcrypt.hash(contrasena, 10);
+    const contrasenaTemp = generarContrasenaAleatoria();
+    const hashedPassword = await bcrypt.hash(contrasenaTemp, 10);
 
     const [result] = await db.execute(
-      'INSERT INTO usuarios (nombre, correo, rol, contrasena) VALUES (?, ?, ?, ?)',
+      'INSERT INTO usuarios (nombre, correo, rol, contrasena, contrasena_temporal) VALUES (?, ?, ?, ?, TRUE)',
       [nombre, correo, rol, hashedPassword]
     );
 
     res.status(201).json({
       id: result.insertId,
+      contrasenaTemp: contrasenaTemp,
       message: 'Usuario creado exitosamente'
     });
   } catch (error) {
@@ -75,6 +76,7 @@ app.post('/usuarios', async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
+
 
 
 
