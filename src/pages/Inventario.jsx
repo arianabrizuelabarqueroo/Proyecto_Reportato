@@ -292,7 +292,7 @@ const Inventario = () => {
                       </div>
                       <div className="flex-grow-1 ms-3">
                         <div className="fw-bold text-dark fs-4">
-                          {inventario.filter(item => item.estado === 'Stock Bajo').length}
+                          {inventario.filter(item => getStockStatus(item.stock_actual, item.stock_minimo) === 'Stock Bajo').length}
                         </div>
                         <div className="text-muted small">Stock Bajo</div>
                       </div>
@@ -311,7 +311,7 @@ const Inventario = () => {
                       </div>
                       <div className="flex-grow-1 ms-3">
                         <div className="fw-bold text-dark fs-4">
-                          {inventario.filter(item => item.estado === 'Agotado').length}
+                          {inventario.filter(item => getStockStatus(item.stock_actual, item.stock_minimo) === 'Agotado').length}
                         </div>
                         <div className="text-muted small">Productos Agotados</div>
                       </div>
@@ -384,7 +384,7 @@ const Inventario = () => {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`badge ${getStockBadgeClass(item.estado)}`}>
+                            <span className={`badge ${getStockBadgeClass(getStockStatus(item.stock_actual, item.stock_minimo))}`}>
                               {item.estado}
                             </span>
                           </td>
