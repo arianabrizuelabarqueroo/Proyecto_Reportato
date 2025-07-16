@@ -4,17 +4,8 @@ import Sidebar from '../components/Sidebar';
 import '../styles/custom.css';
 
 const Compras = () => {
-    const [compras, setCompras] = useState([
-        {   id: 4,
-            usuario: 2,
-            proveedor: 2,
-            fecha: '2024-03-10',
-            producto: 2,
-            precio: 1.5,
-            cantidad: 8.0,
-            total: 0.0
-        }]);
-
+    const [compras, setCompras] = useState([]);
+    const [productos, setProductos] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingCompra, setEditingCompra] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -34,36 +25,55 @@ const Compras = () => {
 
     useEffect(() => {
           fetchCompras();
+          fetchProductos();
         }, []);
       
-        const fetchCompras = async () => {
-          try {
-            setLoading(true);
-            const response = await fetch('http://localhost:3001/compras');
-            if (response.ok) {
+    const fetchCompras = async () => {
+      try {
+          setLoading(true);
+          const response = await fetch('http://localhost:3001/compras');
+          if (response.ok) {
               const data = await response.json();
               setCompras(data);
-            } else {
+          } else {
               console.error('Error al obtener las compras');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-          } finally {
-            setLoading(false);
           }
-        };
+      } catch (error) {
+          console.error('Error:', error);
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    const fetchProductos = async () => {
+    try {
+        const response = await fetch('http://localhost:3001/productos/activos');
+        if (response.ok) {
+          const data = await response.json();
+          setProductos(data);
+        } else {
+          console.error('Error al obtener productos');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
 
     // Filtrar compras por búsqueda
     const filteredCompras = compras.filter(compras =>
-        compras.usuario = searchTerm, 
-        compras.proveedor = searchTerm
-    );
+        compras.proveedor === searchTerm
+      );
 
     // Paginación
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentCompras = filteredCompras.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredCompras.length / itemsPerPage);
+    
+    const getProductoNombre = (producto_id) => {
+      const producto = productos.find(p => p.id === parseInt(producto_id));
+      return producto ? producto.nombre : '';
+    };
 
     const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -73,7 +83,8 @@ const Compras = () => {
         [name]: value
     };
 
-    // Calcular el total 
+    // Calcular el total con precio y cantidad
+    
     const cantidad = parseFloat(name === "cantidad" ? value : updatedData.cantidad);
     const precio = parseFloat(name === "precio" ? value : updatedData.precio);
 
@@ -134,7 +145,7 @@ const Compras = () => {
         setFormData({
         usuario: compras.usuario,
         proveedor: compras.proveedor,
-        fecha: compras.fecha,
+        fecha: formatDateForInput(compras.fecha),
         producto: compras.producto,
         precio: compras.precio,
         cantidad: compras.cantidad,
@@ -161,9 +172,20 @@ const Compras = () => {
         }
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('es-ES');
+    const formatDate = (timestamp) => {
+      const date = new Date(timestamp);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses de 0 a 11
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
     };
+
+    const formatDateForInput = (dateString) => {
+      return new Date(dateString).toISOString(); // devuelve en formato completo UTC
+    };
+
+    console.log("Compras:", compras);
+
 
     if (loading) {
         return (
@@ -230,7 +252,7 @@ const Compras = () => {
                       <input
                         type="text"
                         className="form-control border-start-0"
-                        placeholder="Buscar usuario o proveedor..."
+                        placeholder="Buscar proveedor..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
@@ -272,7 +294,7 @@ const Compras = () => {
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <div className="small text-dark">{compras.producto}</div>
+                              <div className="small text-dark">{getProductoNombre(compras.producto)}</div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -427,7 +449,6 @@ const Compras = () => {
                             name="cantidad"
                             value={formData.cantidad}
                             onChange={handleInputChange}
-                            label= '10.00'
                             required
                         />
                         </div>

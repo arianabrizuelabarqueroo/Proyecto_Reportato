@@ -56,18 +56,16 @@ CREATE TABLE IF NOT EXISTS INVENTARIO (
 
 CREATE TABLE IF NOT EXISTS FIDELIZACION (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    folio VARCHAR(50) NOT NULL,
     cliente VARCHAR(100) NOT NULL,
-    categoria VARCHAR(50) NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES USUARIOS(id)
+    fecha_afiliacion DATE,
+    categoria VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS COMPRAS (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
     proveedor_id INT NOT NULL,
-    fecha_realizada IMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_realizada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     producto_id INT NOT NULL,
     precio_unitario DECIMAL(10,2) DEFAULT 0.00,
     cantidad_producto DECIMAL (10,2) DEFAULT 1.00,
