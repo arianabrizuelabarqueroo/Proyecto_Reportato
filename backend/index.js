@@ -1,6 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+
 
 const app = express();
 const PORT = 3001;
@@ -11,7 +13,7 @@ app.use(express.json());
 const dbConfig = {
   host: 'localhost',
   user: 'root', 
-  password: 'admin', 
+  password: 'root', 
   database: 'reportato'
 };
 
@@ -50,23 +52,22 @@ app.get('/usuarios', async (req, res) => {
 
 app.post('/usuarios', async (req, res) => {
   try {
-    const { nombre, correo, rol } = req.body;
+    const { nombre, correo, rol, contrasena } = req.body;
 
-    if (!nombre || !correo) {
-      return res.status(400).json({ message: 'Nombre y correo son requeridos' });
+    if (!nombre || !correo || !contrasena) {
+      return res.status(400).json({ message: 'Nombre, correo y contraseña son requeridos' });
     }
 
-    // Generar contraseña aleatoria
-    const contrasenaTemp = generarContrasenaAleatoria();
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     const [result] = await db.execute(
-      'INSERT INTO usuarios (nombre, correo, rol, contrasena, contrasena_temporal) VALUES (?, ?, ?, ?, TRUE)',
-      [nombre, correo, rol, contrasenaTemp]
+      'INSERT INTO usuarios (nombre, correo, rol, contrasena) VALUES (?, ?, ?, ?)',
+      [nombre, correo, rol, hashedPassword]
     );
 
     res.status(201).json({
       id: result.insertId,
-      contrasenaTemp: contrasenaTemp,
       message: 'Usuario creado exitosamente'
     });
   } catch (error) {
@@ -75,15 +76,27 @@ app.post('/usuarios', async (req, res) => {
   }
 });
 
+
+
 app.put('/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, correo, rol } = req.body;
+    const { nombre, correo, rol, contrasena } = req.body;
 
-    const [result] = await db.execute(
-      'UPDATE usuarios SET nombre = ?, correo = ?, rol = ? WHERE id = ?',
-      [nombre, correo, rol, id]
-    );
+    let query = 'UPDATE usuarios SET nombre = ?, correo = ?, rol = ?';
+    const params = [nombre, correo, rol];
+
+    if (contrasena) {
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash(contrasena, 10);
+      query += ', contrasena = ?';
+      params.push(hashedPassword);
+    }
+
+    query += ' WHERE id = ?';
+    params.push(id);
+
+    const [result] = await db.execute(query, params);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -95,6 +108,7 @@ app.put('/usuarios/:id', async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
+
 
 app.delete('/usuarios/:id', async (req, res) => {
   try {
@@ -259,7 +273,7 @@ app.delete('/compras/:id', async (req, res) => {
   }
 });
 
-// Rutas para productos
+// Rutas para Login
 app.post('/login', async (req, res) => {
   try {
     const { correo, contrasena } = req.body;
@@ -269,8 +283,8 @@ app.post('/login', async (req, res) => {
     }
 
     const [rows] = await db.execute(
-      'SELECT * FROM usuarios WHERE correo = ? AND contrasena = ?',
-      [correo, contrasena]
+      'SELECT * FROM usuarios WHERE correo = ?',
+      [correo]
     );
 
     if (rows.length === 0) {
@@ -278,14 +292,19 @@ app.post('/login', async (req, res) => {
     }
 
     const usuario = rows[0];
+    const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
+
+    if (!contrasenaValida) {
+      return res.status(401).json({ message: 'Credenciales incorrectas' });
+    }
+
     res.json({
       success: true,
       usuario: {
         id: usuario.id,
         nombre: usuario.nombre,
         correo: usuario.correo,
-        rol: usuario.rol,
-        contrasena_temporal: usuario.contrasena_temporal || false
+        rol: usuario.rol
       }
     });
   } catch (error) {
@@ -293,6 +312,7 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
+
 
 //Rutas cambiar contrasena
 app.put('/usuarios/:id/cambiar-contrasena', async (req, res) => {
