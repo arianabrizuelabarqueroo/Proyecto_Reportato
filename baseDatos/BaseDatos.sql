@@ -3,12 +3,13 @@ CREATE DATABASE IF NOT EXISTS REPORTATO;
 USE REPORTATO;
 
 -- Crear tabla de usuarios con ENUM corregido
-CREATE TABLE IF NOT EXISTS USUARIOS (
+CREATE TABLE IF NOT EXISTS usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(100),
-  correo VARCHAR(100),
-  rol ENUM('Administrador', 'Organizador', 'Usuario'),
-  contrasena VARCHAR(100)
+  nombre VARCHAR(100) NOT NULL,
+  correo VARCHAR(100) NOT NULL UNIQUE,
+  rol ENUM('Administrador', 'Organizador', 'Usuario') DEFAULT 'Usuario',
+  contrasena VARCHAR(100) NOT NULL,
+  contrasena_temporal BOOLEAN DEFAULT TRUE
 );
 
 INSERT INTO USUARIOS (nombre, correo, rol, contrasena)

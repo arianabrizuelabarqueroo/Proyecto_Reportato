@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/custom.css';
+import useReports from '../hooks/useReports';
 
 const VentasDiarias = () => {
   const [ventas, setVentas] = useState([]);
@@ -15,6 +16,15 @@ const VentasDiarias = () => {
   const [itemsPerPage] = useState(8);
   const [filtroFecha, setFiltroFecha] = useState('');
   const [filtroSucursal, setFiltroSucursal] = useState('');
+  const [showWeeklyView, setShowWeeklyView] = useState(false);
+  const { generateDailyReport, generateWeeklyReport, isGenerating, error, clearError } = useReports();
+  const { generateWeeklyReportBySucursal } = useReports();
+
+const handleGenerateWeeklyBySucursal = async () => {
+  if (!ventas || ventas.length === 0) return;
+  await generateWeeklyReportBySucursal(ventas);
+};
+
 
   const [formData, setFormData] = useState({
     sucursal_id: '',
@@ -38,7 +48,7 @@ const VentasDiarias = () => {
       setLoading(true);
       let url = 'http://localhost:3001/ventas-diarias';
       const params = new URLSearchParams();
-      
+
       if (filtroFecha) {
         params.append('fecha_inicio', filtroFecha);
         params.append('fecha_fin', filtroFecha);
@@ -46,7 +56,7 @@ const VentasDiarias = () => {
       if (filtroSucursal) {
         params.append('sucursal_id', filtroSucursal);
       }
-      
+
       if (params.toString()) {
         url += '?' + params.toString();
       }
@@ -83,12 +93,12 @@ const VentasDiarias = () => {
     try {
       let url = 'http://localhost:3001/ventas-diarias/estadisticas';
       const params = new URLSearchParams();
-      
+
       if (filtroFecha) {
         params.append('fecha_inicio', filtroFecha);
         params.append('fecha_fin', filtroFecha);
       }
-      
+
       if (params.toString()) {
         url += '?' + params.toString();
       }
@@ -100,6 +110,106 @@ const VentasDiarias = () => {
       }
     } catch (error) {
       console.error('Error al obtener estadísticas:', error);
+    }
+  };
+
+  const processWeeklyData = (ventasData) => {
+    const weeklyData = {};
+
+    ventasData.forEach(venta => {
+      const fecha = new Date(venta.fecha_venta);
+      const year = fecha.getFullYear();
+      const startOfWeek = new Date(fecha);
+      startOfWeek.setDate(fecha.getDate() - fecha.getDay());
+
+      const weekKey = `${year}-W${Math.ceil((startOfWeek.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`;
+
+      if (!weeklyData[weekKey]) {
+        weeklyData[weekKey] = {
+          numero_semana: Math.ceil((startOfWeek.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)),
+          fecha_inicio: startOfWeek.toISOString().split('T')[0],
+          fecha_fin: new Date(startOfWeek.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          sucursales: {},
+          total_efectivo: 0,
+          total_tarjeta: 0,
+          total_sinpe: 0,
+          total_ventas: 0
+        };
+      }
+
+      const week = weeklyData[weekKey];
+
+      // Agrupar por sucursal si no hay filtro, o mantener total general
+      if (!filtroSucursal) {
+        if (!week.sucursales[venta.sucursal_id]) {
+          week.sucursales[venta.sucursal_id] = {
+            sucursal_nombre: venta.sucursal_nombre,
+            sucursal_tipo: venta.sucursal_tipo,
+            total_efectivo: 0,
+            total_tarjeta: 0,
+            total_sinpe: 0,
+            total_ventas: 0
+          };
+        }
+
+        week.sucursales[venta.sucursal_id].total_efectivo += parseFloat(venta.venta_efectivo || 0);
+        week.sucursales[venta.sucursal_id].total_tarjeta += parseFloat(venta.venta_tarjeta || 0);
+        week.sucursales[venta.sucursal_id].total_sinpe += parseFloat(venta.venta_sinpe || 0);
+        week.sucursales[venta.sucursal_id].total_ventas += parseFloat(venta.venta_total || 0);
+      }
+
+      // Totales generales de la semana
+      week.total_efectivo += parseFloat(venta.venta_efectivo || 0);
+      week.total_tarjeta += parseFloat(venta.venta_tarjeta || 0);
+      week.total_sinpe += parseFloat(venta.venta_sinpe || 0);
+      week.total_ventas += parseFloat(venta.venta_total || 0);
+    });
+
+    return Object.values(weeklyData).sort((a, b) => a.numero_semana - b.numero_semana);
+  };
+
+  const getWeeklyData = () => {
+    return processWeeklyData(ventas);
+  };
+
+  const getWeeklyStats = () => {
+    const weeklyData = getWeeklyData();
+    return weeklyData.reduce((acc, week) => {
+      acc.total_ventas += week.total_ventas;
+      acc.total_efectivo += week.total_efectivo;
+      acc.total_tarjeta += week.total_tarjeta;
+      acc.total_sinpe += week.total_sinpe;
+      return acc;
+    }, {
+      total_ventas: 0,
+      total_efectivo: 0,
+      total_tarjeta: 0,
+      total_sinpe: 0
+    });
+  };
+
+  const handleGenerateReport = async () => {
+    const filters = {
+      fecha: filtroFecha,
+      sucursal: filtroSucursal
+    };
+
+    let result;
+
+    if (showWeeklyView) {
+      const weeklyData = getWeeklyData();
+      const weeklyStats = getWeeklyStats();
+      result = await generateWeeklyReport(weeklyData, weeklyStats, filters, sucursales);
+    } else {
+      result = await generateDailyReport(ventas, estadisticas, filters, sucursales);
+    }
+
+    if (result.success) {
+      // Opcional: mostrar mensaje de éxito
+      console.log('Reporte generado exitosamente:', result.filename);
+    } else {
+      // Manejar error
+      console.error('Error al generar reporte:', result.error);
     }
   };
 
@@ -127,14 +237,14 @@ const VentasDiarias = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const url = editingItem 
+      const url = editingItem
         ? `http://localhost:3001/ventas-diarias/${editingItem.id}`
         : 'http://localhost:3001/ventas-diarias';
-      
+
       const method = editingItem ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method: method,
         headers: {
@@ -280,41 +390,74 @@ const VentasDiarias = () => {
   return (
     <div className="app-layout bg-light">
       <Sidebar />
-      
+
       <div className="main-content">
         <Header />
-        
+
         <div className="content-area">
           <div className="container-fluid p-4">
             {/* Header */}
             <div className="row mb-4">
-              <div className="col-12">
-                <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                  <div>
-                    <h3 className="fw-bold text-dark mb-1">
-                      <i className="fas fa-cash-register text-primary-purple me-2"></i>
-                      Ventas Diarias
-                    </h3>
-                    <p className="text-muted mb-0">
-                      Registro de ventas por punto de venta
-                    </p>
-                  </div>
-                  <div className="d-flex gap-2">
-                    <button className="btn btn-outline-primary-green">
+              <div className="d-flex gap-2">
+                <button
+                  className={`btn ${showWeeklyView ? 'btn-primary-green' : 'btn-outline-primary-green'}`}
+                  onClick={() => setShowWeeklyView(!showWeeklyView)}
+                >
+                  <i className="fas fa-calendar-week me-1"></i>
+                  {showWeeklyView ? 'Vista Diaria' : 'Vista Semanal'}
+                </button>
+
+                <button
+                  className="btn btn-outline-primary-green"
+                  onClick={handleGenerateReport}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                      Generando...
+                    </>
+                  ) : (
+                    <>
                       <i className="fas fa-download me-1"></i>
-                      Exportar
-                    </button>
-                    <button 
-                      className="btn btn-primary-purple"
-                      onClick={() => setShowModal(true)}
-                    >
-                      <i className="fas fa-plus me-1"></i>
-                      Registrar Venta
-                    </button>
-                  </div>
-                </div>
+                      Exportar PDF
+                    </>
+                  )}
+                </button>
+
+                {/* ✅ Nuevo botón: Exportar por Sucursal */}
+                {showWeeklyView && (
+                  <button
+                    className="btn btn-outline-primary-purple"
+                    onClick={handleGenerateWeeklyBySucursal}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-file-alt me-1"></i>
+                        Exportar PDF por Sucursal
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {!showWeeklyView && (
+                  <button
+                    className="btn btn-primary-purple"
+                    onClick={() => setShowModal(true)}
+                  >
+                    <i className="fas fa-plus me-1"></i>
+                    Registrar Venta
+                  </button>
+                )}
               </div>
             </div>
+
 
             {/* Estadísticas */}
             {estadisticas && (
@@ -329,8 +472,12 @@ const VentasDiarias = () => {
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
-                          <div className="fw-bold text-dark fs-4">{formatCurrency(estadisticas.total_ventas)}</div>
-                          <div className="text-muted small">Total Ventas</div>
+                          <div className="fw-bold text-dark fs-4">
+                            {formatCurrency(showWeeklyView ? getWeeklyStats().total_ventas : estadisticas.total_ventas)}
+                          </div>
+                          <div className="text-muted small">
+                            Total Ventas {showWeeklyView ? '(Semanales)' : ''}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -346,7 +493,9 @@ const VentasDiarias = () => {
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
-                          <div className="fw-bold text-dark fs-4">{formatCurrency(estadisticas.total_efectivo)}</div>
+                          <div className="fw-bold text-dark fs-4">
+                            {formatCurrency(showWeeklyView ? getWeeklyStats().total_efectivo : estadisticas.total_efectivo)}
+                          </div>
                           <div className="text-muted small">Efectivo</div>
                         </div>
                       </div>
@@ -363,7 +512,9 @@ const VentasDiarias = () => {
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
-                          <div className="fw-bold text-dark fs-4">{formatCurrency(estadisticas.total_tarjeta)}</div>
+                          <div className="fw-bold text-dark fs-4">
+                            {formatCurrency(showWeeklyView ? getWeeklyStats().total_tarjeta : estadisticas.total_tarjeta)}
+                          </div>
                           <div className="text-muted small">Tarjetas</div>
                         </div>
                       </div>
@@ -380,7 +531,9 @@ const VentasDiarias = () => {
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
-                          <div className="fw-bold text-dark fs-4">{formatCurrency(estadisticas.total_sinpe)}</div>
+                          <div className="fw-bold text-dark fs-4">
+                            {formatCurrency(showWeeklyView ? getWeeklyStats().total_sinpe : estadisticas.total_sinpe)}
+                          </div>
                           <div className="text-muted small">SINPE</div>
                         </div>
                       </div>
@@ -390,228 +543,320 @@ const VentasDiarias = () => {
               </div>
             )}
 
-            {/* Filtros */}
-            <div className="card border-0 shadow-sm mb-4">
-              <div className="card-body">
-                <div className="row align-items-end">
-                  <div className="col-md-3 mb-3">
-                    <label className="form-label small fw-medium">Filtrar por fecha</label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      value={filtroFecha}
-                      onChange={(e) => setFiltroFecha(e.target.value)}
-                    />
-                  </div>
-                  <div className="col-md-3 mb-3">
-                    <label className="form-label small fw-medium">Filtrar por sucursal</label>
-                    <select
-                      className="form-select"
-                      value={filtroSucursal}
-                      onChange={(e) => setFiltroSucursal(e.target.value)}
-                    >
-                      <option value="">Todas las sucursales</option>
-                      {sucursales.map((sucursal) => (
-                        <option key={sucursal.id} value={sucursal.id}>
-                          {sucursal.nombre} - {sucursal.tipo}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-4 mb-3">
-                    <label className="form-label small fw-medium">Buscar</label>
-                    <div className="input-group">
-                      <span className="input-group-text bg-light border-end-0">
-                        <i className="fas fa-search text-muted"></i>
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control border-start-0"
-                        placeholder="Buscar en ventas..."value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-2 mb-3">
-                    <label className="form-label small fw-medium text-white">.</label>
-                    <button 
-                      className="btn btn-outline-secondary w-100"
-                      onClick={() => {
-                        setFiltroFecha('');
-                        setFiltroSucursal('');
-                        setSearchTerm('');
-                      }}
-                    >
-                      <i className="fas fa-times me-1"></i>
-                      Limpiar
-                    </button>
+            {error && (
+              <div className="row mb-3">
+                <div className="col-12">
+                  <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i className="fas fa-exclamation-triangle me-2"></i>
+                    {error}
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={clearError}
+                      aria-label="Close"
+                    ></button>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Tabla de ventas */}
-            <div className="card border-0 shadow-sm">
-              <div className="card-body p-0">
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="bg-light">
-                      <tr>
-                        <th className="border-0 fw-medium text-muted small px-4 py-3">Sucursal</th>
-                        <th className="border-0 fw-medium text-muted small py-3">Fecha</th>
-                        <th className="border-0 fw-medium text-muted small py-3">Efectivo</th>
-                        <th className="border-0 fw-medium text-muted small py-3">Tarjeta</th>
-                        <th className="border-0 fw-medium text-muted small py-3">SINPE</th>
-                        <th className="border-0 fw-medium text-muted small py-3">Total</th>
-                        <th className="border-0 fw-medium text-muted small py-3">Estado</th>
-                        <th className="border-0 fw-medium text-muted small py-3">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentItems.length > 0 ? (
-                        currentItems.map((item) => (
-                          <tr key={item.id}>
+            {/* Tabla de ventas semanales */}
+            {showWeeklyView && (
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-light border-0">
+                  <h5 className="mb-0">
+                    <i className="fas fa-calendar-week text-primary-green me-2"></i>
+                    Ventas Semanales {filtroSucursal && sucursales.find(s => s.id == filtroSucursal) ? `- ${sucursales.find(s => s.id == filtroSucursal).nombre}` : ''}
+                  </h5>
+                </div>
+                <div className="card-body p-0">
+                  <div className="table-responsive">
+                    <table className="table table-hover mb-0">
+                      <thead className="bg-light">
+                        <tr>
+                          <th className="border-0 fw-medium text-muted small px-4 py-3">Semana</th>
+                          {!filtroSucursal && <th className="border-0 fw-medium text-muted small py-3">Sucursales</th>}
+                          <th className="border-0 fw-medium text-muted small py-3">Efectivo</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Tarjeta</th>
+                          <th className="border-0 fw-medium text-muted small py-3">SINPE</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Total</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Promedio Diario</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {getWeeklyData().map((week, index) => (
+                          <tr key={index}>
                             <td className="px-4 py-3">
                               <div>
-                                <div className="fw-medium text-dark">{item.sucursal_nombre}</div>
-                                <div className="small">
-                                  <span className={`badge ${getTipoBadgeClass(item.sucursal_tipo)} me-1`}>
-                                    {item.sucursal_tipo}
-                                  </span>
-                                  <span className="text-muted">{item.sucursal_ubicacion}</span>
+                                <div className="fw-medium text-dark">
+                                  Semana {week.numero_semana}
+                                </div>
+                                <div className="small text-muted">
+                                  {formatDate(week.fecha_inicio)} - {formatDate(week.fecha_fin)}
                                 </div>
                               </div>
                             </td>
+                            {!filtroSucursal && (
+                              <td className="py-3">
+                                <div className="d-flex flex-wrap gap-1">
+                                  {Object.values(week.sucursales).map((sucursal, idx) => (
+                                    <span key={idx} className={`badge ${getTipoBadgeClass(sucursal.sucursal_tipo)} small`}>
+                                      {sucursal.sucursal_nombre}
+                                    </span>
+                                  ))}
+                                </div>
+                              </td>
+                            )}
                             <td className="py-3">
-                              <div className="text-dark">{formatDate(item.fecha_venta)}</div>
+                              <div className="text-dark fw-medium">{formatCurrency(week.total_efectivo)}</div>
                             </td>
                             <td className="py-3">
-                              <div className="text-dark fw-medium">{formatCurrency(item.venta_efectivo)}</div>
+                              <div className="text-dark fw-medium">{formatCurrency(week.total_tarjeta)}</div>
                             </td>
                             <td className="py-3">
-                              <div className="text-dark fw-medium">{formatCurrency(item.venta_tarjeta)}</div>
+                              <div className="text-dark fw-medium">{formatCurrency(week.total_sinpe)}</div>
                             </td>
                             <td className="py-3">
-                              <div className="text-dark fw-medium">{formatCurrency(item.venta_sinpe)}</div>
+                              <div className="text-dark fw-bold">{formatCurrency(week.total_ventas)}</div>
                             </td>
                             <td className="py-3">
-                              <div className="text-dark fw-bold">{formatCurrency(item.venta_total)}</div>
+                              <div className="text-dark">{formatCurrency(week.total_ventas / 7)}</div>
                             </td>
-                            <td className="py-3">
-                              <div className="dropdown">
-                                <span 
-                                  className={`badge ${getStatusBadgeClass(item.estado)} dropdown-toggle`}
-                                  style={{ cursor: 'pointer' }}
-                                  data-bs-toggle="dropdown"
-                                >
-                                  {item.estado}
-                                </span>
-                                <ul className="dropdown-menu">
-                                  <li>
-                                    <button 
-                                      className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(item.id, 'pendiente')}
-                                    >
-                                      Pendiente
-                                    </button>
-                                  </li>
-                                  <li>
-                                    <button 
-                                      className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(item.id, 'confirmada')}
-                                    >
-                                      Confirmada
-                                    </button>
-                                  </li>
-                                  <li>
-                                    <button 
-                                      className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(item.id, 'cerrada')}
-                                    >
-                                      Cerrada
-                                    </button>
-                                  </li>
-                                </ul>
-                              </div>
-                            </td>
-                            <td className="py-3">
-                              <div className="d-flex gap-2">
-                                <button
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => handleEdit(item)}
-                                  title="Editar"
-                                >
-                                  <i className="fas fa-edit"></i>
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-outline-danger"
-                                  onClick={() => handleDelete(item.id)}
-                                  title="Eliminar"
-                                >
-                                  <i className="fas fa-trash"></i>
-                                </button>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Filtros */}
+            {!showWeeklyView && (
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-body">
+                  <div className="row align-items-end">
+                    <div className="col-md-3 mb-3">
+                      <label className="form-label small fw-medium">Filtrar por fecha</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={filtroFecha}
+                        onChange={(e) => setFiltroFecha(e.target.value)}
+                      />
+                    </div>
+                    <div className="col-md-3 mb-3">
+                      <label className="form-label small fw-medium">Filtrar por sucursal</label>
+                      <select
+                        className="form-select"
+                        value={filtroSucursal}
+                        onChange={(e) => setFiltroSucursal(e.target.value)}
+                      >
+                        <option value="">Todas las sucursales</option>
+                        {sucursales.map((sucursal) => (
+                          <option key={sucursal.id} value={sucursal.id}>
+                            {sucursal.nombre} - {sucursal.tipo}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label small fw-medium">Buscar</label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light border-end-0">
+                          <i className="fas fa-search text-muted"></i>
+                        </span>
+                        <input
+                          type="text"
+                          className="form-control border-start-0"
+                          placeholder="Buscar en ventas..." value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-2 mb-3">
+                      <label className="form-label small fw-medium text-white">.</label>
+                      <button
+                        className="btn btn-outline-secondary w-100"
+                        onClick={() => {
+                          setFiltroFecha('');
+                          setFiltroSucursal('');
+                          setSearchTerm('');
+                        }}
+                      >
+                        <i className="fas fa-times me-1"></i>
+                        Limpiar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tabla de ventas */}
+            {!showWeeklyView && (
+              <div className="card border-0 shadow-sm">
+                <div className="card-body p-0">
+                  <div className="table-responsive">
+                    <table className="table table-hover mb-0">
+                      <thead className="bg-light">
+                        <tr>
+                          <th className="border-0 fw-medium text-muted small px-4 py-3">Sucursal</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Fecha</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Efectivo</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Tarjeta</th>
+                          <th className="border-0 fw-medium text-muted small py-3">SINPE</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Total</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Estado</th>
+                          <th className="border-0 fw-medium text-muted small py-3">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentItems.length > 0 ? (
+                          currentItems.map((item) => (
+                            <tr key={item.id}>
+                              <td className="px-4 py-3">
+                                <div>
+                                  <div className="fw-medium text-dark">{item.sucursal_nombre}</div>
+                                  <div className="small">
+                                    <span className={`badge ${getTipoBadgeClass(item.sucursal_tipo)} me-1`}>
+                                      {item.sucursal_tipo}
+                                    </span>
+                                    <span className="text-muted">{item.sucursal_ubicacion}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3">
+                                <div className="text-dark">{formatDate(item.fecha_venta)}</div>
+                              </td>
+                              <td className="py-3">
+                                <div className="text-dark fw-medium">{formatCurrency(item.venta_efectivo)}</div>
+                              </td>
+                              <td className="py-3">
+                                <div className="text-dark fw-medium">{formatCurrency(item.venta_tarjeta)}</div>
+                              </td>
+                              <td className="py-3">
+                                <div className="text-dark fw-medium">{formatCurrency(item.venta_sinpe)}</div>
+                              </td>
+                              <td className="py-3">
+                                <div className="text-dark fw-bold">{formatCurrency(item.venta_total)}</div>
+                              </td>
+                              <td className="py-3">
+                                <div className="dropdown">
+                                  <span
+                                    className={`badge ${getStatusBadgeClass(item.estado)} dropdown-toggle`}
+                                    style={{ cursor: 'pointer' }}
+                                    data-bs-toggle="dropdown"
+                                  >
+                                    {item.estado}
+                                  </span>
+                                  <ul className="dropdown-menu">
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleChangeStatus(item.id, 'pendiente')}
+                                      >
+                                        Pendiente
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleChangeStatus(item.id, 'confirmada')}
+                                      >
+                                        Confirmada
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleChangeStatus(item.id, 'cerrada')}
+                                      >
+                                        Cerrada
+                                      </button>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </td>
+                              <td className="py-3">
+                                <div className="d-flex gap-2">
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() => handleEdit(item)}
+                                    title="Editar"
+                                  >
+                                    <i className="fas fa-edit"></i>
+                                  </button>
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => handleDelete(item.id)}
+                                    title="Eliminar"
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="8" className="text-center py-5">
+                              <div className="text-muted">
+                                <i className="fas fa-inbox fa-3x mb-3 text-muted opacity-50"></i>
+                                <div>No se encontraron registros de ventas</div>
                               </div>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="8" className="text-center py-5">
-                            <div className="text-muted">
-                              <i className="fas fa-inbox fa-3x mb-3 text-muted opacity-50"></i>
-                              <div>No se encontraron registros de ventas</div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
 
-                {/* Paginación */}
-                {totalPages > 1 && (
-                  <div className="card-footer bg-light border-0">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="text-muted small">
-                        Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, filteredVentas.length)} de {filteredVentas.length} registros
-                      </div>
-                      <nav>
-                        <ul className="pagination pagination-sm mb-0">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button 
-                              className="page-link"
-                              onClick={() => setCurrentPage(currentPage - 1)}
-                              disabled={currentPage === 1}
-                            >
-                              Anterior
-                            </button>
-                          </li>
-                          {[...Array(totalPages)].map((_, index) => (
-                            <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                              <button 
+                  {/* Paginación */}
+                  {totalPages > 1 && (
+                    <div className="card-footer bg-light border-0">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div className="text-muted small">
+                          Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, filteredVentas.length)} de {filteredVentas.length} registros
+                        </div>
+                        <nav>
+                          <ul className="pagination pagination-sm mb-0">
+                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                              <button
                                 className="page-link"
-                                onClick={() => setCurrentPage(index + 1)}
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
                               >
-                                {index + 1}
+                                Anterior
                               </button>
                             </li>
-                          ))}
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button 
-                              className="page-link"
-                              onClick={() => setCurrentPage(currentPage + 1)}
-                              disabled={currentPage === totalPages}
-                            >
-                              Siguiente
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
+                            {[...Array(totalPages)].map((_, index) => (
+                              <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                                <button
+                                  className="page-link"
+                                  onClick={() => setCurrentPage(index + 1)}
+                                >
+                                  {index + 1}
+                                </button>
+                              </li>
+                            ))}
+                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                              <button
+                                className="page-link"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                              >
+                                Siguiente
+                              </button>
+                            </li>
+                          </ul>
+                        </nav>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -625,8 +870,8 @@ const VentasDiarias = () => {
                 <h5 className="modal-title">
                   {editingItem ? 'Editar Venta Diaria' : 'Registrar Venta Diaria'}
                 </h5>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn-close"
                   onClick={resetForm}
                 ></button>
@@ -757,15 +1002,15 @@ const VentasDiarias = () => {
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={resetForm}
                   >
                     Cancelar
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary-purple"
                   >
                     {editingItem ? 'Actualizar' : 'Registrar'}
