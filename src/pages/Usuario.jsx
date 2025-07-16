@@ -1,34 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import '../styles/custom.css';
-import CustomAlert from '../components/CustomAlert';
+import React, { useState, useEffect } from "react";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import "../styles/custom.css";
+import CustomAlert from "../components/CustomAlert";
+import { permisos } from "../permisos";
 
 const Usuario = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
   const rolUsuario = localStorage.getItem("rol");
-
+  const puedeCrear = permisos[rolUsuario]?.usuarios.includes("crear");
+  const puedeEditar = permisos[rolUsuario]?.usuarios.includes("editar");
+  const puedeEliminar = permisos[rolUsuario]?.usuarios.includes("eliminar");
 
   const [formData, setFormData] = useState({
-    nombre: '',
-    correo: '',
-    rol: 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
+    nombre: "",
+    correo: "",
+    rol: "Usuario",
+    contrasena: ''
   });
 
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
-    title: '',
-    message: '',
-    type: 'info',
+    title: "",
+    message: "",
+    type: "info",
     showCopyButton: false,
-    copyText: ''
+    copyText: "",
   });
 
   useEffect(() => {
@@ -38,98 +42,103 @@ const Usuario = () => {
   const fetchUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/usuarios');
+      const response = await fetch("http://localhost:3001/usuarios");
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
       setUsuarios(data);
     } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+      console.error("Error al obtener usuarios:", error);
       setUsuarios([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Función auxiliar para filtrado seguro
   const safeStringFilter = (value, searchTerm) => {
     if (!value) return false;
     return value.toString().toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  const filteredUsuarios = usuarios.filter(usuario => {
+  const filteredUsuarios = usuarios.filter((usuario) => {
     if (!searchTerm) return true;
-
-    return safeStringFilter(usuario.nombre, searchTerm) ||
+    return (
+      safeStringFilter(usuario.nombre, searchTerm) ||
       safeStringFilter(usuario.correo, searchTerm) ||
-      safeStringFilter(usuario.rol, searchTerm);
+      safeStringFilter(usuario.rol, searchTerm)
+    );
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsuarios = filteredUsuarios.slice(indexOfFirstItem, indexOfLastItem);
+  const currentUsuarios = filteredUsuarios.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const totalPages = Math.ceil(filteredUsuarios.length / itemsPerPage);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const method = editingUsuario ? 'PUT' : 'POST';
+    const method = editingUsuario ? "PUT" : "POST";
     const url = editingUsuario
       ? `http://localhost:3001/usuarios/${editingUsuario.id}`
-      : 'http://localhost:3001/usuarios';
+      : "http://localhost:3001/usuarios";
 
     try {
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
         const result = await response.json();
-
-        // Si es un nuevo usuario, mostrar la contraseña temporal
         if (!editingUsuario && result.contrasenaTemp) {
           setAlertConfig({
             isOpen: true,
-            title: '¡Usuario creado exitosamente!',
-            message: 'Se ha generado una contraseña temporal. Compártela con el usuario para que pueda acceder al sistema.',
-            type: 'password',
+            title: "¡Usuario creado exitosamente!",
+            message:
+              "Se ha generado una contraseña temporal. Compártela con el usuario para que pueda acceder al sistema.",
+            type: "password",
             showCopyButton: true,
-            copyText: result.contrasenaTemp
+            copyText: result.contrasenaTemp,
           });
         } else {
           setAlertConfig({
             isOpen: true,
-            title: '¡Éxito!',
-            message: 'Usuario actualizado exitosamente',
-            type: 'success'
+            title: "¡Éxito!",
+            message: "Usuario actualizado exitosamente",
+            type: "success",
           });
         }
 
         await fetchUsuarios();
         resetForm();
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: "Error desconocido" }));
         setAlertConfig({
           isOpen: true,
-          title: 'Error',
+          title: "Error",
           message: errorData.message,
-          type: 'error'
+          type: "error",
         });
       }
     } catch (error) {
-      console.error('Error al guardar usuario:', error);
+      console.error("Error al guardar usuario:", error);
       setAlertConfig({
         isOpen: true,
-        title: 'Error de conexión',
-        message: 'No se pudo conectar con el servidor. Por favor, intenta nuevamente.',
-        type: 'error'
+        title: "Error de conexión",
+        message:
+          "No se pudo conectar con el servidor. Por favor, intenta nuevamente.",
+        type: "error",
       });
     }
   };
@@ -137,39 +146,38 @@ const Usuario = () => {
   const handleEdit = (usuario) => {
     setEditingUsuario(usuario);
     setFormData({
-      nombre: usuario.nombre || '',
-      correo: usuario.correo || '',
-      rol: usuario.rol || 'Usuario' // Cambiado de 'Empleado' a 'Usuario'
+      nombre: usuario.nombre || "",
+      correo: usuario.correo || "",
+      rol: usuario.rol || "Usuario",
     });
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Deseas eliminar este usuario?')) {
+    if (window.confirm("¿Deseas eliminar este usuario?")) {
       try {
         const response = await fetch(`http://localhost:3001/usuarios/${id}`, {
-          method: 'DELETE'
+          method: "DELETE",
         });
         if (response.ok) {
           await fetchUsuarios();
         } else {
-          console.error('Error al eliminar usuario:', response.statusText);
+          console.error("Error al eliminar usuario:", response.statusText);
         }
       } catch (error) {
-        console.error('Error al eliminar usuario:', error);
+        console.error("Error al eliminar usuario:", error);
       }
     }
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', correo: '', rol: 'Usuario' }); // Cambiado de 'Empleado' a 'Usuario'
+    setFormData({ nombre: '', correo: '', rol: 'Usuario', contrasena: '' });
     setEditingUsuario(null);
     setShowModal(false);
   };
 
-  // Función auxiliar para conteo seguro - CORREGIDA
   const safeCount = (array, condition) => {
-    return array.filter(item => {
+    return array.filter((item) => {
       if (!item.rol) return false;
       return condition(item.rol.toLowerCase());
     }).length;
@@ -207,21 +215,21 @@ const Usuario = () => {
                     <i className="fas fa-user-shield text-primary-purple me-2"></i>
                     Gestión de Usuarios
                   </h3>
-                  <p className="text-muted mb-0">Administra los usuarios del sistema</p>
-
-                {/* <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
-                  <i className="fas fa-plus me-1"></i> Nuevo Usuario
-                </button> */}
-                
-                {rolUsuario === "Administrador" && (
-                  <button className="btn btn-primary-purple" onClick={() => setShowModal(true)}>
+                  <p className="text-muted mb-0">
+                    Administra los usuarios del sistema
+                  </p>
+                </div>
+                {puedeCrear && (
+                  <button
+                    className="btn btn-primary-purple"
+                    onClick={() => setShowModal(true)}
+                  >
                     <i className="fas fa-plus me-1"></i> Nuevo Usuario
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Barra de búsqueda */}
             <div className="row mb-4">
               <div className="col-md-6">
                 <div className="input-group">
@@ -257,7 +265,7 @@ const Usuario = () => {
                     <i className="fas fa-user-tie fa-2x text-primary-green me-3"></i>
                     <div>
                       <h5 className="fw-bold mb-0">
-                        {safeCount(usuarios, rol => rol === 'administrador')}
+                        {safeCount(usuarios, (rol) => rol === "administrador")}
                       </h5>
                       <small className="text-muted">Administradores</small>
                     </div>
@@ -270,7 +278,7 @@ const Usuario = () => {
                     <i className="fas fa-user fa-2x text-primary-orange me-3"></i>
                     <div>
                       <h5 className="fw-bold mb-0">
-                        {safeCount(usuarios, rol => rol === 'usuario')}
+                        {safeCount(usuarios, (rol) => rol === "usuario")}
                       </h5>
                       <small className="text-muted">Usuarios</small>
                     </div>
@@ -279,7 +287,6 @@ const Usuario = () => {
               </div>
             </div>
 
-            {/* Tabla */}
             <div className="card shadow-sm border-0">
               <div className="card-body p-0">
                 <div className="table-responsive">
@@ -289,65 +296,53 @@ const Usuario = () => {
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Rol</th>
-                        {rolUsuario === "Administrador" && <th>Rol</th>}
-                        {/* <th>Acciones</th> */}
+                        {(puedeEditar || puedeEliminar) && <th>Acciones</th>}
                       </tr>
                     </thead>
                     <tbody>
                       {currentUsuarios.length > 0 ? (
                         currentUsuarios.map((usuario) => (
                           <tr key={usuario.id}>
-                            <td>{usuario.nombre || 'N/A'}</td>
-                            <td>{usuario.correo || 'N/A'}</td>
+                            <td>{usuario.nombre || "N/A"}</td>
+                            <td>{usuario.correo || "N/A"}</td>
                             <td>
-                              <span className={`badge ${usuario.rol?.toLowerCase() === 'administrador'
-                                  ? 'bg-primary'
-                                  : usuario.rol?.toLowerCase() === 'organizador'
-                                    ? 'bg-success'
-                                    : 'bg-secondary'
-                                }`}>
-                                {usuario.rol || 'N/A'}
+                              <span
+                                className={`badge ${
+                                  usuario.rol?.toLowerCase() === "administrador"
+                                    ? "bg-primary"
+                                    : usuario.rol?.toLowerCase() ===
+                                      "organizador"
+                                    ? "bg-success"
+                                    : "bg-secondary"
+                                }`}
+                              >
+                                {usuario.rol || "N/A"}
                               </span>
                             </td>
-                            <td>
-                              <div className="d-flex gap-2">
-                                {/* <button
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => handleEdit(usuario)}
-                                  title="Editar"
-                                >
-                                  <i className="fas fa-edit"></i>
-                                </button> */}
-                                {rolUsuario === "Administrador" && (
-                                  <button
-                                    className="btn btn-sm btn-outline-secondary"
-                                    onClick={() => handleEdit(usuario)}
-                                    title="Editar Rol"
-                                  >
-                                    <i className="fa-solid fa-pen"></i>
-                                  </button>
-                                )}
-
-                                {rolUsuario === "Administrador" && (
-                                  <button
-                                    className="btn btn-sm btn-outline-danger"
-                                    onClick={() => handleDelete(usuario.id)}
-                                    title="Eliminar"
-                                  >
-                                    <i className="fas fa-trash"></i>
-                                  </button>
-                                )}
-
-                                {/* <button
-                                  className="btn btn-sm btn-outline-danger"
-                                  onClick={() => handleDelete(usuario.id)}
-                                  title="Eliminar"
-                                >
-                                  <i className="fas fa-trash"></i>
-                                </button> */}
-
-                              </div>
-                            </td>
+                            {(puedeEditar || puedeEliminar) && (
+                              <td>
+                                <div className="d-flex gap-2">
+                                  {puedeEditar && (
+                                    <button
+                                      className="btn btn-sm btn-outline-secondary"
+                                      onClick={() => handleEdit(usuario)}
+                                      title="Editar"
+                                    >
+                                      <i className="fa-solid fa-pen"></i>
+                                    </button>
+                                  )}
+                                  {puedeEliminar && (
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => handleDelete(usuario.id)}
+                                      title="Eliminar"
+                                    >
+                                      <i className="fas fa-trash"></i>
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            )}
                           </tr>
                         ))
                       ) : (
@@ -355,7 +350,9 @@ const Usuario = () => {
                           <td colSpan="4" className="text-center py-4">
                             <i className="fas fa-inbox fa-2x text-muted mb-2"></i>
                             <p className="text-muted mb-0">
-                              {searchTerm ? 'No se encontraron usuarios' : 'No hay usuarios registrados'}
+                              {searchTerm
+                                ? "No se encontraron usuarios"
+                                : "No hay usuarios registrados"}
                             </p>
                           </td>
                         </tr>
@@ -366,12 +363,15 @@ const Usuario = () => {
               </div>
             </div>
 
-            {/* Paginación */}
             {totalPages > 1 && (
               <div className="d-flex justify-content-center mt-4">
                 <nav>
                   <ul className="pagination">
-                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
                       <button
                         className="page-link"
                         onClick={() => paginate(currentPage - 1)}
@@ -381,7 +381,12 @@ const Usuario = () => {
                       </button>
                     </li>
                     {[...Array(totalPages)].map((_, index) => (
-                      <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                      <li
+                        key={index + 1}
+                        className={`page-item ${
+                          currentPage === index + 1 ? "active" : ""
+                        }`}
+                      >
                         <button
                           className="page-link"
                           onClick={() => paginate(index + 1)}
@@ -390,7 +395,11 @@ const Usuario = () => {
                         </button>
                       </li>
                     ))}
-                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <li
+                      className={`page-item ${
+                        currentPage === totalPages ? "disabled" : ""
+                      }`}
+                    >
                       <button
                         className="page-link"
                         onClick={() => paginate(currentPage + 1)}
@@ -404,16 +413,22 @@ const Usuario = () => {
               </div>
             )}
 
-            {/* Modal */}
             {showModal && (
-              <div className="modal show d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+              <div
+                className="modal show d-block"
+                style={{ background: "rgba(0,0,0,0.5)" }}
+              >
                 <div className="modal-dialog">
                   <div className="modal-content">
                     <div className="modal-header">
                       <h5 className="modal-title">
-                        {editingUsuario ? 'Editar Usuario' : 'Nuevo Usuario'}
+                        {editingUsuario ? "Editar Usuario" : "Nuevo Usuario"}
                       </h5>
-                      <button type="button" className="btn-close" onClick={resetForm}></button>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={resetForm}
+                      ></button>
                     </div>
                     <form onSubmit={handleSubmit}>
                       <div className="modal-body">
@@ -451,19 +466,42 @@ const Usuario = () => {
                             required
                           >
                             <option value="Administrador">Administrador</option>
-                            <option value="Organizador">Organizador</option>
                             <option value="Usuario">Usuario</option>
                           </select>
                         </div>
+                        <div className="mb-3">
+                          <label className="form-label">Contraseña</label>
+                          <input
+                            type="password"
+                            className="form-control"
+                            name="contrasena"
+                            value={formData.contrasena}
+                            onChange={handleInputChange}                            
+                            placeholder="Ingrese la contraseña"
+                          />
+                        </div>
                       </div>
                       <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={resetForm}
+                        >
                           Cancelar
                         </button>
-                        <button type="submit" className="btn btn-primary-purple">
-                          <i className={`fas ${editingUsuario ? 'fa-save' : 'fa-plus'} me-1`}></i>
-                          {editingUsuario ? 'Actualizar' : 'Crear'}
-                        </button>
+                        {puedeCrear && (
+                          <button
+                            type="submit"
+                            className="btn btn-primary-purple"
+                          >
+                            <i
+                              className={`fas ${
+                                editingUsuario ? "fa-save" : "fa-plus"
+                              } me-1`}
+                            ></i>
+                            {editingUsuario ? "Actualizar" : "Crear"}
+                          </button>
+                        )}
                       </div>
                     </form>
                   </div>
@@ -473,7 +511,6 @@ const Usuario = () => {
           </div>
         </div>
       </div>
-      {/* Custom Alert */}
       <CustomAlert
         isOpen={alertConfig.isOpen}
         onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })}
@@ -483,7 +520,6 @@ const Usuario = () => {
         showCopyButton={alertConfig.showCopyButton}
         copyText={alertConfig.copyText}
       />
-    </div>
     </div>
   );
 };
