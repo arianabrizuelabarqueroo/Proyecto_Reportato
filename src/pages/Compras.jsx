@@ -67,7 +67,7 @@ const Compras = () => {
     // Paginación
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentCompras = filteredCompras.slice(indexOfFirstItem, indexOfLastItem);
+    const currentCompras = compras //filteredCompras.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredCompras.length / itemsPerPage);
     
     const getProductoNombre = (producto_id) => {
@@ -140,16 +140,16 @@ const Compras = () => {
         setShowModal(false);
     };
 
-    const handleEdit = (compras) => {
-        setEditingCompra(compras);
+    const handleEdit = (item) => {
+        setEditingCompra(item);
         setFormData({
-        usuario: compras.usuario,
-        proveedor: compras.proveedor,
-        fecha: formatDateForInput(compras.fecha),
-        producto: compras.producto,
-        precio: compras.precio,
-        cantidad: compras.cantidad,
-        total: compras.total
+        usuario: item.usuario,
+        proveedor: item.proveedor,
+        fecha: item.fecha,
+        producto: item.producto,
+        precio: item.precio,
+        cantidad: item.cantidad,
+        total: item.total
         });
         setShowModal(true);
     };
@@ -172,17 +172,13 @@ const Compras = () => {
         }
     };
 
-    const formatDate = (timestamp) => {
-      const date = new Date(timestamp);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses de 0 a 11
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
+    /*const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString('es-ES');
     };
 
     const formatDateForInput = (dateString) => {
-      return new Date(dateString).toISOString(); // devuelve en formato completo UTC
-    };
+      return new Date(dateString).toISOString().split('T')[0];
+    }; */
 
     console.log("Compras:", compras);
 
@@ -260,6 +256,7 @@ const Compras = () => {
                   </div>
                 </div>
               </div>
+
               <div className="card-body p-0">
                 <div className="table-responsive">
                   <table className="table table-hover align-middle mb-0">
@@ -267,7 +264,6 @@ const Compras = () => {
                       <tr>
                         <th className="border-0 px-4 py-3">Usuario</th>
                         <th className="border-0 px-4 py-3">Proveedor</th>
-                        <th className="border-0 px-4 py-3">Fecha de Registro</th>
                         <th className="border-0 px-4 py-3">Producto</th>
                         <th className="border-0 px-4 py-3">Precio Unitario</th>
                         <th className="border-0 px-4 py-3">Cantidad</th>
@@ -275,52 +271,47 @@ const Compras = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentCompras.map((compras) => (
-                        <tr key={compras.id}>
+                      {currentCompras.map((item) => (
+                        <tr key={item.id}>
                           <td className="px-4 py-3">
                             <div>
-                              <div className="fw-medium text-dark">{compras.usuario}</div>
+                              <div className="fw-medium text-dark">{item.usuario}</div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <div className="small text-dark">{compras.proveedor}</div>
+                              <div className="small text-dark">{item.proveedor}</div>
                             </div>
                           </td> 
                           <td className="px-4 py-3">
-                            <span className="small text-muted">
-                              {formatDate(compras.fechaRegistro)}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
                             <div>
-                              <div className="small text-dark">{getProductoNombre(compras.producto)}</div>
+                              <div className="small text-dark">{getProductoNombre(item.producto)}</div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <div className="small text-dark">{compras.precio}</div>
+                              <div className="small text-dark">{item.precio}</div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="fw-medium text-dark">{compras.cantidad}</div>
+                            <div className="fw-medium text-dark">{item.cantidad}</div>
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <div className="small text-dark">{compras.total}</div>
+                              <div className="small text-dark">{item.total}</div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <div className="d-flex gap-2">
                               <button
                                 className="btn btn-sm btn-outline-primary"
-                                onClick={() => handleEdit(compras)}
+                                onClick={() => handleEdit(item)}
                               >
                                 <i className="fas fa-edit"></i>
                               </button>
                               <button
                                 className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDelete(compras.id)}
+                                onClick={() => handleDelete(item.id)}
                               >
                                 <i className="fas fa-trash"></i>
                               </button>
@@ -331,7 +322,7 @@ const Compras = () => {
                     </tbody>
                   </table>
                 </div>
-
+              
 
                 {/* Paginación */}
                 {totalPages > 1 && (
@@ -373,10 +364,10 @@ const Compras = () => {
                     </nav>
                   </div>
                 )}
+                </div>
               </div>
             </div>
-            </div>
-        </div>
+          </div>
         </div>
             {/* Modal para crear/editar Compra */}
             {showModal && (

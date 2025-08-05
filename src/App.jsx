@@ -13,6 +13,7 @@ import Sucursales from './pages/Sucursales';
 import Login from './pages/Login';
 import { AuthProvider } from './components/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import RecuperarContrasena from './pages/RecuperarContrasena';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Routes>
           {/* Rutas públicas */}
           <Route path="/login" element={<Login />} />
+          <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
 
           {/* Redirección desde "/" a /home si está autenticado */}
           <Route path="/" element={
@@ -36,7 +38,7 @@ function App() {
               <Home />
             </ProtectedRoute>
           } />
-          <Route path="/clientes" element={
+           <Route path="/clientes" element={
             <ProtectedRoute>
               <Clientes />
             </ProtectedRoute>

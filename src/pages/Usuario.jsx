@@ -23,7 +23,7 @@ const Usuario = () => {
     nombre: "",
     correo: "",
     rol: "Usuario",
-    contrasena: ''
+    contrasena: "",
   });
 
   const [alertConfig, setAlertConfig] = useState({
@@ -171,7 +171,7 @@ const Usuario = () => {
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', correo: '', rol: 'Usuario', contrasena: '' });
+    setFormData({ nombre: "", correo: "", rol: "Usuario", contrasena: "" });
     setEditingUsuario(null);
     setShowModal(false);
   };
@@ -469,17 +469,21 @@ const Usuario = () => {
                             <option value="Usuario">Usuario</option>
                           </select>
                         </div>
-                        <div className="mb-3">
-                          <label className="form-label">Contraseña</label>
-                          <input
-                            type="password"
-                            className="form-control"
-                            name="contrasena"
-                            value={formData.contrasena}
-                            onChange={handleInputChange}                            
-                            placeholder="Ingrese la contraseña"
-                          />
-                        </div>
+                        {editingUsuario && (
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Contraseña (si desea cambiarla)
+                            </label>
+                            <input
+                              type="password"
+                              className="form-control"
+                              name="contrasena"
+                              value={formData.contrasena}
+                              onChange={handleInputChange}
+                              placeholder="Nueva contraseña"
+                            />
+                          </div>
+                        )}
                       </div>
                       <div className="modal-footer">
                         <button

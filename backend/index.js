@@ -2,6 +2,8 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+
 
 
 const app = express();
@@ -12,10 +14,18 @@ app.use(express.json());
 
 const dbConfig = {
   host: 'localhost',
-  user: 'root', 
-  password: 'root', 
+  user: 'root',
+  password: '88419550',
   database: 'reportato'
 };
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'abrizuela2004@gmail.com',
+    pass: 'ocbw ymxm bsci gofw'
+  }
+});
 
 
 let db;
@@ -52,22 +62,23 @@ app.get('/usuarios', async (req, res) => {
 
 app.post('/usuarios', async (req, res) => {
   try {
-    const { nombre, correo, rol, contrasena } = req.body;
+    const { nombre, correo, rol } = req.body;
 
-    if (!nombre || !correo || !contrasena) {
-      return res.status(400).json({ message: 'Nombre, correo y contraseña son requeridos' });
+    if (!nombre || !correo) {
+      return res.status(400).json({ message: 'Nombre y correo son requeridos' });
     }
 
-    // Hashear la contraseña
-    const hashedPassword = await bcrypt.hash(contrasena, 10);
+    const contrasenaTemp = generarContrasenaAleatoria();
+    const hashedPassword = await bcrypt.hash(contrasenaTemp, 10);
 
     const [result] = await db.execute(
-      'INSERT INTO usuarios (nombre, correo, rol, contrasena) VALUES (?, ?, ?, ?)',
+      'INSERT INTO usuarios (nombre, correo, rol, contrasena, contrasena_temporal) VALUES (?, ?, ?, ?, TRUE)',
       [nombre, correo, rol, hashedPassword]
     );
 
     res.status(201).json({
       id: result.insertId,
+      contrasenaTemp: contrasenaTemp,
       message: 'Usuario creado exitosamente'
     });
   } catch (error) {
@@ -75,6 +86,7 @@ app.post('/usuarios', async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
+
 
 
 
@@ -141,20 +153,20 @@ app.post('/fidelizacion', async (req, res) => {
       [cliente, fechaRegistro, categoria]
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Usuario creado exitosamente' 
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Usuario creado exitosamente'
     });
   } catch (error) {
     console.error('Error al crear usuario fidelizacion:', error);
   }
-    });
+});
 
-    //ACTUALIZACION/ EDICION DE USUARIO
+//ACTUALIZACION/ EDICION DE USUARIO
 app.put('/fidelizacion/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const {cliente, fechaRegistro, categoria} = req.body;
+    const { cliente, fechaRegistro, categoria } = req.body;
 
     const [result] = await db.execute(
       'UPDATE fidelizacion SET cliente = ?,fecha_Afiliacion = ?, categoria = ? WHERE id = ?',
@@ -168,9 +180,9 @@ app.put('/fidelizacion/:id', async (req, res) => {
     res.json({ message: 'Usuario fidelizacion actualizado exitosamente' });
   } catch (error) {
     console.error('Error al actualizar usuario fidelizacion:', error);
-    }
-    });
-    //ELIMINACION DE USUARIO FIDELIZACION 
+  }
+});
+//ELIMINACION DE USUARIO FIDELIZACION 
 app.delete('/fidelizacion/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -184,8 +196,8 @@ app.delete('/fidelizacion/:id', async (req, res) => {
     res.json({ message: 'Usuario fidelizacion eliminado exitosamente' });
   } catch (error) {
     console.error('Error al eliminar usuario fidelizacion:', error);
-    }
-    });
+  }
+});
 
 // Rutas para fidelizacion - NUEVO
 app.get('/fidelizacion', async (req, res) => {
@@ -194,7 +206,7 @@ app.get('/fidelizacion', async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener fidelizacion:', error);
-      }
+  }
 });
 
 
@@ -223,9 +235,9 @@ app.post('/compras', async (req, res) => {
       [usuario, proveedor, fecha, producto, precio, cantidad, total]
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      message: 'Compra creada exitosamente' 
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Compra creada exitosamente'
     });
   } catch (error) {
     console.error('Error al crear la compra:', error);
@@ -304,7 +316,8 @@ app.post('/login', async (req, res) => {
         id: usuario.id,
         nombre: usuario.nombre,
         correo: usuario.correo,
-        rol: usuario.rol
+        rol: usuario.rol,
+        contrasena_temporal: usuario.contrasena_temporal 
       }
     });
   } catch (error) {
@@ -315,6 +328,7 @@ app.post('/login', async (req, res) => {
 
 
 //Rutas cambiar contrasena
+// Cambiar contraseña estando logueado
 app.put('/usuarios/:id/cambiar-contrasena', async (req, res) => {
   try {
     const { id } = req.params;
@@ -324,25 +338,69 @@ app.put('/usuarios/:id/cambiar-contrasena', async (req, res) => {
       return res.status(400).json({ message: 'Contraseña actual y nueva contraseña son requeridas' });
     }
 
-    // Verificar contraseña actual
-    const [rows] = await db.execute(
-      'SELECT * FROM usuarios WHERE id = ? AND contrasena = ?',
-      [id, contrasenaActual]
-    );
-
+    const [rows] = await db.execute('SELECT * FROM usuarios WHERE id = ?', [id]);
     if (rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const usuario = rows[0];
+    const contrasenaValida = await bcrypt.compare(contrasenaActual, usuario.contrasena);
+
+    if (!contrasenaValida) {
       return res.status(401).json({ message: 'Contraseña actual incorrecta' });
     }
 
-    // Actualizar contraseña y marcar como no temporal
-    const [result] = await db.execute(
+    const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
+    await db.execute(
       'UPDATE usuarios SET contrasena = ?, contrasena_temporal = FALSE WHERE id = ?',
-      [nuevaContrasena, id]
+      [hashedPassword, id]
     );
 
     res.json({ message: 'Contraseña actualizada exitosamente' });
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Recuperar contraseña por email
+app.post('/recuperar-contrasena', async (req, res) => {
+  try {
+    const { correo } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({ message: 'Correo es requerido' });
+    }
+
+    const [rows] = await db.execute('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Correo no encontrado' });
+    }
+
+    const usuario = rows[0];
+    const nuevaContrasena = generarContrasenaAleatoria();
+    const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
+
+    await db.execute(
+      'UPDATE usuarios SET contrasena = ?, contrasena_temporal = TRUE WHERE id = ?',
+      [hashedPassword, usuario.id]
+    );
+
+    await transporter.sendMail({
+      from: 'tu-email@gmail.com',
+      to: correo,
+      subject: 'Recuperación de contraseña',
+      html: `
+        <h2>Recuperación de contraseña</h2>
+        <p>Hola ${usuario.nombre},</p>
+        <p>Tu nueva contraseña temporal es: <strong>${nuevaContrasena}</strong></p>
+        <p>Te recomendamos cambiarla después de iniciar sesión.</p>
+      `
+    });
+
+    res.json({ message: 'Nueva contraseña enviada al correo' });
+  } catch (error) {
+    console.error('Error al recuperar contraseña:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
