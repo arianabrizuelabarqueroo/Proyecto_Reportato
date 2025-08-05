@@ -105,6 +105,7 @@ INSERT INTO INVENTARIO (producto_id, stock_actual, stock_minimo, precio_unitario
 (1, 50, 10, 2.50, '2024-01-15', '2024-02-15'),
 (2, 30, 5, 1.80, '2024-01-16', '2024-03-16');
 
+
 -- ==============================
 -- TABLA DE COMPRAS
 -- ==============================
@@ -112,7 +113,7 @@ CREATE TABLE IF NOT EXISTS COMPRAS (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NOT NULL,
   proveedor_id INT NOT NULL,
-  fecha_realizada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_realizada VARCHAR(50) NOT NULL,
   producto_id INT NOT NULL,
   precio_unitario DECIMAL(10,2) DEFAULT 0.00,
   cantidad_producto DECIMAL(10,2) DEFAULT 1.00,
@@ -122,7 +123,18 @@ CREATE TABLE IF NOT EXISTS COMPRAS (
   FOREIGN KEY (producto_id) REFERENCES PRODUCTOS(id) ON DELETE CASCADE
 );
 
--- Insertar compras
+
+-- Insertar proveedores
+INSERT INTO PROVEEDORES (nombre, empresa, telefono, email, direccion, ciudad, tipo_proveedor) VALUES 
+('Juan Carlos Mendez', 'Frutas y Verduras El Campo', '+506 8888-1111', 'juan@elcampo.com', 'San José Centro, Avenida Central', 'San José', 'Mayorista'),
+('María Elena Vargas', 'Distribuidora Verde Fresco', '+506 8888-2222', 'maria@verdefresco.com', 'Cartago, Mercado Central', 'Cartago', 'Distribuidor'),
+('Roberto Solís', 'Productos Agrícolas Solís', '+506 8888-3333', 'roberto@agrisolis.com', 'Alajuela, Zona Industrial', 'Alajuela', 'Productor'),
+('Ana Lucía Rojas', 'Mercado Los Andes', '+506 8888-4444', 'ana@losandes.com', 'Heredia, Centro Comercial', 'Heredia', 'Minorista'),
+('Carlos Jiménez', 'Finca Orgánica Jiménez', '+506 8888-5555', 'carlos@organica.com', 'Puntarenas, Finca El Progreso', 'Puntarenas', 'Productor'),
+('Sofía Hernández', 'Distribuciones Hernández', '+506 8888-6666', 'sofia@dihernandez.com', 'Limón, Puerto Viejo', 'Limón', 'Distribuidor'),
+('Diego Morales', 'Verduras Frescas Morales', '+506 8888-7777', 'diego@verdurasmorales.com', 'Guanacaste, Liberia Centro', 'Guanacaste', 'Mayorista'),
+('Patricia Castro', 'Frutas Tropicales Castro', '+506 8888-8888', 'patricia@tropicales.com', 'San José, Pavas', 'San José', 'Productor');
+
 INSERT INTO COMPRAS (usuario_id, proveedor_id, fecha_realizada, producto_id, precio_unitario, cantidad_producto, total) VALUES
 (1, 3, '2024-01-16', 1, 1.5, 5, 7.5),
 (2, 5, '2024-01-16', 1, 1.0, 6, 6.0);
@@ -195,7 +207,7 @@ ORDER BY vd.fecha_venta DESC, s.nombre;
 CREATE TABLE IF NOT EXISTS FIDELIZACION (
   id INT AUTO_INCREMENT PRIMARY KEY,
   cliente VARCHAR(100) NOT NULL,
-  fecha_afiliacion DATE,
+  fecha_afiliacion VARCHAR(100) NOT NULL,
   categoria VARCHAR(50) NOT NULL
 );
 

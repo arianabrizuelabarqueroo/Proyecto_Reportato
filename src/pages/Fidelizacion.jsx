@@ -105,7 +105,7 @@ const Fidelizacion = () => {
     setFormData({
       id: fidelizacion.id,
       cliente: fidelizacion.cliente,
-      fechaRegistro: formatDateForInput(fidelizacion.fechaRegistro),
+      fechaRegistro: fidelizacion.fechaRegistro,
       categoria: fidelizacion.categoria
     });
     setShowModal(true);
@@ -149,14 +149,18 @@ const Fidelizacion = () => {
     }
   };
 
+//Verificar la informacion que esta trayendo de BD 
 
- const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES');
+ /*const formatDate = (dateString) => {
+    console.log(dateString)
+    dateString = '2024-08-15';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
   };
 
   const formatDateForInput = (dateString) => {
     return new Date(dateString).toISOString().split('T')[0];
-  };
+  }; */
 
   const getStatusBadgeClass = (categoria) => {
     switch (categoria.toLowerCase()) {
@@ -263,32 +267,32 @@ const Fidelizacion = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentFidelizacion.map((fidelizacion) => (
-                        <tr key={fidelizacion.id}>
+                      {currentFidelizacion.map((item) => (
+                        <tr key={item.id}>
                           <td className="px-4 py-3">
                             <div>
-                              <div className="fw-medium text-dark">{fidelizacion.cliente}</div>
+                              <div className="fw-medium text-dark">{item.cliente}</div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <span className="small text-muted">
-                              {formatDate(fidelizacion.fechaRegistro)}
+                              {item.fechaRegistro}
                             </span>
                           </td>
                           <td className="px-4 py-3">
                             <div className="dropdown">
                                 <span 
-                                  className={`badge ${getStatusBadgeClass(fidelizacion.categoria)} dropdown-toggle`}
+                                  className={`badge ${getStatusBadgeClass(item.categoria)} dropdown-toggle`}
                                   style={{ cursor: 'pointer' }}
                                   data-bs-toggle="dropdown"
                                 >
-                                  {fidelizacion.categoria}
+                                  {item.categoria}
                                 </span>
                                 <ul className="dropdown-menu">
                                   <li>
                                     <button 
                                       className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(fidelizacion.id, 'bronce')}
+                                      onClick={() => handleChangeStatus(item.id, 'bronce')}
                                     >
                                       Bronce
                                     </button>
@@ -296,7 +300,7 @@ const Fidelizacion = () => {
                                   <li>
                                     <button 
                                       className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(fidelizacion.id, 'plata')}
+                                      onClick={() => handleChangeStatus(item.id, 'plata')}
                                     >
                                       Plata
                                     </button>
@@ -304,7 +308,7 @@ const Fidelizacion = () => {
                                   <li>
                                     <button 
                                       className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(fidelizacion.id, 'oro')}
+                                      onClick={() => handleChangeStatus(item.id, 'oro')}
                                     >
                                       Oro
                                     </button>
@@ -312,7 +316,7 @@ const Fidelizacion = () => {
                                   <li>
                                     <button 
                                       className="dropdown-item" 
-                                      onClick={() => handleChangeStatus(fidelizacion.id, 'diamante')}
+                                      onClick={() => handleChangeStatus(item.id, 'diamante')}
                                     >
                                       Diamante
                                     </button>
@@ -324,13 +328,13 @@ const Fidelizacion = () => {
                             <div className="d-flex gap-2">
                               <button
                                 className="btn btn-sm btn-outline-primary"
-                                onClick={() => handleEdit(fidelizacion)}
+                                onClick={() => handleEdit(item)}
                               >
                                 <i className="fas fa-edit"></i>
                               </button>
                               <button
                                 className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDelete(fidelizacion.id)}
+                                onClick={() => handleDelete(item.id)}
                               >
                                 <i className="fas fa-trash"></i>
                               </button>
@@ -338,6 +342,7 @@ const Fidelizacion = () => {
                           </td>
                         </tr>
                       ))}
+                      
                     </tbody>
                   </table>
                 </div>
