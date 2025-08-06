@@ -15,7 +15,7 @@ app.use(express.json());
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: '88419550',
+  password: 'admin',
   database: 'reportato'
 };
 

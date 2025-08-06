@@ -6,7 +6,7 @@ const Sidebar = () => {
       title: "Dashboard",
       icon: "fas fa-home",
       active: false,
-      href: "",
+      href: "home",
     },
     {
       title: "Ventas",
@@ -27,12 +27,6 @@ const Sidebar = () => {
       href: "inventario",
     },
     {
-      title: "Clientes",
-      icon: "fas fa-users",
-      active: false,
-      href: "clientes",
-    },
-    {
       title: "Fidelizacion",
       icon: "fas fa-star-half-stroke",
       active: false,
@@ -49,12 +43,6 @@ const Sidebar = () => {
       icon: 'fas fa-lemon',
       active: false,
       href: 'productos'
-    },
-    {
-      title: "Configuración",
-      icon: "fas fa-cog",
-      active: false,
-      href: "#",
     },
     {
       title: "Usuario",

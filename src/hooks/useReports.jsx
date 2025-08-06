@@ -103,10 +103,70 @@ const useReports = () => {
     }
   };
 
+  const generateInventoryReport = async (inventory, filters = {}) => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const reportService = new ReportService();
+      reportService.generateInventoryReport(inventory, filters);
+      const filename = `reporte_inventario_${new Date().toISOString().split('T')[0]}.pdf`;
+      reportService.downloadPDF(filename);
+      return { success: true, filename };
+    } catch (err) {
+      console.error('Error al generar reporte de inventario:', err);
+      setError('Error al generar el reporte PDF de inventario');
+      return { success: false, error: err.message };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateProductReport = async (products, filters = {}) => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const reportService = new ReportService();
+      reportService.generateProductReport(products, filters);
+      const filename = `reporte_productos_${new Date().toISOString().split('T')[0]}.pdf`;
+      reportService.downloadPDF(filename);
+      return { success: true, filename };
+    } catch (err) {
+      console.error('Error al generar reporte de productos:', err);
+      setError('Error al generar el reporte PDF de productos');
+      return { success: false, error: err.message };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateSupplierReport = async (suppliers, filters = {}) => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const reportService = new ReportService();
+      reportService.generateSupplierReport(suppliers, filters);
+      const filename = `reporte_proveedores_${new Date().toISOString().split('T')[0]}.pdf`;
+      reportService.downloadPDF(filename);
+      return { success: true, filename };
+    } catch (err) {
+      console.error('Error al generar reporte de proveedores:', err);
+      setError('Error al generar el reporte PDF de proveedores');
+      return { success: false, error: err.message };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     generateDailyReport,
     generateWeeklyReport,
     generateWeeklyReportBySucursal,
+    generateInventoryReport,
+    generateProductReport,
+    generateSupplierReport,
     generateComparativeReport,
     isGenerating,
     error,

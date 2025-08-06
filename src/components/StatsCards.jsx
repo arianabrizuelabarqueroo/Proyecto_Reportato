@@ -1,36 +1,9 @@
 import React from 'react';
 
-const StatsCards = () => {
-  const stats = [
-    {
-      title: 'Ventas Hoy',
-      value: '$2,450',
-      icon: 'fas fa-dollar-sign',
-      color: 'primary-orange',
-      change: '+12%'
-    },
-    {
-      title: 'Productos',
-      value: '156',
-      icon: 'fas fa-apple-alt',
-      color: 'primary-green',
-      change: '+3'
-    },
-    {
-      title: 'Stock Bajo',
-      value: '8',
-      icon: 'fas fa-exclamation-triangle',
-      color: 'primary-blue',
-      change: '-2'
-    },
-    {
-      title: 'Clientes',
-      value: '45',
-      icon: 'fas fa-users',
-      color: 'secondary-gray',
-      change: '+8'
-    }
-  ];
+const StatsCards = ({ stats }) => {
+  if (!stats || stats.length === 0) {
+    return null;
+  }
 
   return (
     <div className="row g-4 mb-4">
@@ -48,11 +21,13 @@ const StatsCards = () => {
                       <h3 className="mb-0 fw-bold">{stat.value}</h3>
                       <p className="text-muted mb-0 small">{stat.title}</p>
                     </div>
-                    <div className="col-auto">
-                      <span className={`badge bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
-                        {stat.change}
-                      </span>
-                    </div>
+                    {stat.change &&
+                      <div className="col-auto">
+                        <span className={`badge bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                          {stat.change}
+                        </span>
+                      </div>
+                    }
                   </div>
                 </div>
               </div>
