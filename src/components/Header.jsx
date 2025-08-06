@@ -30,6 +30,8 @@ const Header = () => {
         return { title: 'Usuario', subtitle: 'Administra tu usuario' };
       case '/sucursales':
         return { title: 'Sucursales', subtitle: 'Administra tus sucursales' };
+        case '/cuentas-por-cobrar':
+        return { title: 'Cuentas por Cobrar', subtitle: 'Administra las facturas de tus clientes' };
       default:
         return { title: 'Dashboard', subtitle: 'Panel de control principal' };
     }

@@ -179,6 +179,25 @@ const useReports = () => {
     }
   };
 
+  const generateCuentasPorCobrarReport = async (facturas, filters = {}) => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const reportService = new ReportService();
+      reportService.generateCuentasPorCobrarReport(facturas, filters);
+      const filename = `reporte_cuentas_por_cobrar_${new Date().toISOString().split('T')[0]}.pdf`;
+      reportService.downloadPDF(filename);
+      return { success: true, filename };
+    } catch (err) {
+      console.error('Error al generar reporte de cuentas por cobrar:', err);
+      setError('Error al generar el reporte PDF de cuentas por cobrar');
+      return { success: false, error: err.message };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     generateDailyReport,
     generateWeeklyReport,
@@ -187,6 +206,7 @@ const useReports = () => {
     generateProductReport,
     generateSupplierReport,
     generateCuentasPorPagarReport,
+    generateCuentasPorCobrarReport,
     generateComparativeReport,
     isGenerating,
     error,

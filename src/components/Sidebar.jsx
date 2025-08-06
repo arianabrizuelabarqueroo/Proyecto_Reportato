@@ -38,6 +38,18 @@ const Sidebar = () => {
       active: false,
       href: "cuentas-por-pagar",
     },
+    {
+      title: "Clientes",
+      icon: "fas fa-users",
+      active: false,
+      href: "clientes",
+    },
+    {
+      title: "Cuentas por Cobrar",
+      icon: "fas fa-hand-holding-dollar",
+      active: false,
+      href: "cuentas-por-cobrar",
+    },
      {
       title: 'Productos',
       icon: 'fas fa-lemon',
@@ -118,6 +130,7 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
+
     </div>
   );
 };

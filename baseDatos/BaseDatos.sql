@@ -44,6 +44,48 @@ CREATE TABLE IF NOT EXISTS PRODUCTOS (
   fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ==========================================
+-- TABLA DE CLIENTES
+-- ==========================================
+CREATE TABLE IF NOT EXISTS clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  empresa VARCHAR(100),
+  telefono VARCHAR(20),
+  email VARCHAR(100),
+  direccion TEXT,
+  ciudad VARCHAR(50),
+  estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ==========================================
+-- TABLA DE FACTURAS DE CLIENTES
+-- ==========================================
+CREATE TABLE IF NOT EXISTS facturas_clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cliente_id INT NOT NULL,
+  numero_factura VARCHAR(100) NOT NULL,
+  monto DECIMAL(10, 2) NOT NULL,
+  saldo DECIMAL(10, 2) NOT NULL,
+  fecha_emision DATE NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- TABLA DE ABONOS DE CLIENTES
+-- ==========================================
+CREATE TABLE IF NOT EXISTS abonos_clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  factura_id INT NOT NULL,
+  monto DECIMAL(10, 2) NOT NULL,
+  fecha_abono DATE NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (factura_id) REFERENCES facturas_clientes(id) ON DELETE CASCADE
+);
+
 -- Insertar productos
 INSERT INTO PRODUCTOS (nombre, categoria, unidad_medida, descripcion) VALUES
   ('Tomate', 'Verduras', 'kg', 'Tomate fresco'),
@@ -224,3 +266,4 @@ CREATE TABLE IF NOT EXISTS abonos_proveedores (
   fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (factura_id) REFERENCES facturas_proveedores(id) ON DELETE CASCADE
 );
+

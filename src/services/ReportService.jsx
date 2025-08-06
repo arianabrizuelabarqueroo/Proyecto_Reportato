@@ -519,6 +519,99 @@ generateInventoryReport(inventory, filters = {}) {
       const totalDeuda = facturasProveedor.reduce((acc, f) => acc + parseFloat(f.saldo), 0);
 
       autoTable(this.doc, {
+        body: [['Total Owed', this.formatCurrency(totalDeuda)]],
+        startY: this.currentY,
+        theme: 'plain',
+        didParseCell: function (data) {
+            if (data.row.index === 0 && data.column.index === 0) {
+                data.cell.styles.fontStyle = 'bold';
+            }
+        },
+        styles: {
+          halign: 'right'
+        },
+        margin: { left: 20, right: 20 }
+      });
+
+      this.currentY = this.doc.lastAutoTable.finalY + 10;
+    });
+
+    this.addFooter();
+    return this.doc;
+  }
+
+  generateCuentasPorCobrarReport(facturas, filters = {}) {
+    this.initDocument();
+
+    this.addHeader('REPORTE DE CUENTAS POR COBRAR', 'Listado de facturas de clientes', filters);
+
+    if (!facturas || facturas.length === 0) {
+      this.doc.setFontSize(12);
+      this.doc.setTextColor(this.colors.secondary);
+      this.doc.text('No se encontraron registros de facturas.', 20, this.currentY);
+      this.addFooter();
+      return this.doc;
+    }
+
+    const facturasByClient = facturas.reduce((acc, factura) => {
+      const { nombre_cliente } = factura;
+      if (!acc[nombre_cliente]) {
+        acc[nombre_cliente] = [];
+      }
+      acc[nombre_cliente].push(factura);
+      return acc;
+    }, {});
+
+    Object.entries(facturasByClient).forEach(([cliente, facturasCliente]) => {
+      this.doc.setFontSize(14);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.setTextColor(this.colors.dark);
+      this.doc.text(`Cliente: ${cliente}`, 20, this.currentY);
+      this.currentY += 8;
+
+      const tableData = facturasCliente.map(f => [
+        f.numero_factura,
+        this.formatCurrency(f.monto),
+        this.formatCurrency(f.saldo),
+        this.formatDate(f.fecha_emision)
+      ]);
+
+      autoTable(this.doc, {
+        head: [['N° Factura', 'Monto', 'Saldo', 'Fecha Emisión']],
+        body: tableData,
+        startY: this.currentY,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [46, 125, 50],
+          textColor: 255,
+          fontStyle: 'bold',
+          fontSize: 9
+        },
+        bodyStyles: {
+          fontSize: 8,
+          textColor: [33, 37, 41]
+        },
+        styles: {
+          overflow: 'linebreak',
+          cellPadding: 2
+        },
+        columnStyles: {
+          0: { cellWidth: 'auto' },
+          1: { halign: 'right' },
+          2: { halign: 'right' },
+          3: { cellWidth: 'wrap' }
+        },
+        margin: { left: 20, right: 20 },
+        alternateRowStyles: {
+          fillColor: [248, 249, 250]
+        }
+      });
+
+      this.currentY = this.doc.lastAutoTable.finalY + 5;
+
+      const totalDeuda = facturasCliente.reduce((acc, f) => acc + parseFloat(f.saldo), 0);
+
+      autoTable(this.doc, {
         body: [['Total Adeudado', this.formatCurrency(totalDeuda)]],
         startY: this.currentY,
         theme: 'plain',

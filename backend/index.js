@@ -686,6 +686,287 @@ app.delete('/proveedores/:id', async (req, res) => {
   }
 });
 
+// Rutas para clientes
+app.get('/clientes', async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT * FROM clientes ORDER BY nombre');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener clientes:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+app.post('/clientes', async (req, res) => {
+  try {
+    const { nombre, empresa, telefono, email, direccion, ciudad, estado } = req.body;
+
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es requerido' });
+    }
+
+    const query = `
+      INSERT INTO clientes (nombre, empresa, telefono, email, direccion, ciudad, estado) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await pool.execute(query, [
+      nombre,
+      empresa || null,
+      telefono || null,
+      email || null,
+      direccion || null,
+      ciudad || null,
+      estado || 'Activo',
+    ]);
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Cliente creado exitosamente'
+    });
+  } catch (error) {
+    console.error('Error al crear cliente:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.put('/clientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, empresa, telefono, email, direccion, ciudad, estado } = req.body;
+
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es requerido' });
+    }
+
+    const query = `
+      UPDATE clientes
+      SET nombre = ?, empresa = ?, telefono = ?, email = ?, 
+          direccion = ?, ciudad = ?, estado = ?
+      WHERE id = ?
+    `;
+
+    const [result] = await pool.execute(query, [
+      nombre,
+      empresa || null,
+      telefono || null,
+      email || null,
+      direccion || null,
+      ciudad || null,
+      estado || 'Activo',
+      id
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+
+    res.json({ message: 'Cliente actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar cliente:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.delete('/clientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM clientes WHERE id = ?';
+    const [result] = await pool.execute(query, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+
+    res.json({ message: 'Cliente eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar cliente:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+
+// Rutas para facturas de clientes
+app.get('/facturas-clientes', async (req, res) => {
+  try {
+    const { cliente_id } = req.query;
+    let query = `
+      SELECT fc.*, c.nombre as nombre_cliente
+      FROM facturas_clientes fc
+      JOIN clientes c ON fc.cliente_id = c.id
+    `;
+    const params = [];
+
+    if (cliente_id) {
+      query += ' WHERE fc.cliente_id = ?';
+      params.push(cliente_id);
+    }
+
+    query += ' ORDER BY fc.fecha_emision DESC';
+
+    const [rows] = await pool.execute(query, params);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener facturas de clientes:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/facturas-clientes', async (req, res) => {
+  try {
+    const { cliente_id, numero_factura, monto, fecha_emision } = req.body;
+
+    if (!cliente_id || !numero_factura || !monto || !fecha_emision) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    const query = `
+      INSERT INTO facturas_clientes (cliente_id, numero_factura, monto, saldo, fecha_emision) 
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await pool.execute(query, [cliente_id, numero_factura, monto, monto, fecha_emision]);
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Factura de cliente creada exitosamente'
+    });
+  } catch (error) {
+    console.error('Error al crear factura de cliente:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.put('/facturas-clientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { cliente_id, numero_factura, monto, fecha_emision } = req.body;
+
+    if (!cliente_id || !numero_factura || !monto || !fecha_emision) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    const query = `
+      UPDATE facturas_clientes 
+      SET cliente_id = ?, numero_factura = ?, monto = ?, fecha_emision = ?
+      WHERE id = ?
+    `;
+
+    const [result] = await pool.execute(query, [cliente_id, numero_factura, monto, fecha_emision, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Factura de cliente no encontrada' });
+    }
+
+    res.json({ message: 'Factura de cliente actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar factura de cliente:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.delete('/facturas-clientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM facturas_clientes WHERE id = ?';
+    const [result] = await pool.execute(query, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Factura de cliente no encontrada' });
+    }
+
+    res.json({ message: 'Factura de cliente eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar factura de cliente:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/abonos-clientes', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const { factura_id, monto, fecha_abono } = req.body;
+
+    if (!factura_id || !monto || !fecha_abono) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    const [factura] = await connection.execute('SELECT * FROM facturas_clientes WHERE id = ?', [factura_id]);
+
+    if (factura.length === 0) {
+      return res.status(404).json({ error: 'Factura no encontrada' });
+    }
+
+    const saldo_actual = factura[0].saldo;
+
+    if (monto > saldo_actual) {
+      return res.status(400).json({ error: 'El monto del abono no puede ser mayor al saldo actual' });
+    }
+
+    const nuevo_saldo = saldo_actual - monto;
+
+    await connection.execute('UPDATE facturas_clientes SET saldo = ? WHERE id = ?', [nuevo_saldo, factura_id]);
+
+    const query = `
+      INSERT INTO abonos_clientes (factura_id, monto, fecha_abono) 
+      VALUES (?, ?, ?)
+    `;
+
+    const [result] = await connection.execute(query, [factura_id, monto, fecha_abono]);
+    
+    await connection.commit();
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Abono realizado exitosamente'
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Error al crear abono:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  } finally {
+    connection.release();
+  }
+});
+
+app.get('/reportes/deuda-cliente-semanal', async (req, res) => {
+  try {
+    const { cliente_id, fecha_inicio, fecha_fin } = req.query;
+
+    if (!cliente_id || !fecha_inicio || !fecha_fin) {
+      return res.status(400).json({ error: 'cliente_id, fecha_inicio y fecha_fin son requeridos' });
+    }
+
+    const query = `
+      SELECT 
+        c.nombre as nombre_cliente,
+        fc.numero_factura,
+        fc.monto,
+        fc.fecha_emision
+      FROM facturas_clientes fc
+      JOIN clientes c ON fc.cliente_id = c.id
+      WHERE fc.cliente_id = ? AND fc.fecha_emision BETWEEN ? AND ?
+      ORDER BY fc.fecha_emision
+    `;
+
+    const [rows] = await pool.execute(query, [cliente_id, fecha_inicio, fecha_fin]);
+    
+    const total = rows.reduce((acc, curr) => acc + curr.monto, 0);
+
+    res.json({
+      facturas: rows,
+      total: total
+    });
+  } catch (error) {
+    console.error('Error al generar el reporte de deuda semanal:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+
 // Rutas para facturas de proveedores
 app.get('/facturas-proveedores', async (req, res) => {
   try {

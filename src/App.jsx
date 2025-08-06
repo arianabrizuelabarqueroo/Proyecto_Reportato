@@ -8,6 +8,7 @@ import Ventas from './pages/Ventas';
 import Inventario from './pages/Inventario';
 import Proveedores from './pages/Proveedores';
 import CuentasPorPagar from './pages/CuentasPorPagar';
+import CuentasPorCobrar from './pages/CuentasPorCobrar';
 import Usuario from './pages/Usuario';
 import Productos from './pages/Productos';
 import Sucursales from './pages/Sucursales';
@@ -82,6 +83,11 @@ function App() {
           <Route path="/cuentas-por-pagar" element={
             <ProtectedRoute>
               <CuentasPorPagar />
+            </ProtectedRoute>
+          } />
+          <Route path="/cuentas-por-cobrar" element={
+            <ProtectedRoute>
+              <CuentasPorCobrar />
             </ProtectedRoute>
           } />
           <Route path="/sucursales" element={
