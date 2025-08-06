@@ -28,16 +28,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
-let db;
-async function connectDB() {
-  try {
-    db = await mysql.createConnection(dbConfig);
-    console.log('Conectado a la base de datos MySQL');
-  } catch (error) {
-    console.error('Error conectando a la base de datos:', error);
-    process.exit(1);
-  }
-}
+const pool = mysql.createPool(dbConfig);
 
 // Función para generar contraseña aleatoria
 function generarContrasenaAleatoria(longitud = 8) {
@@ -52,7 +43,7 @@ function generarContrasenaAleatoria(longitud = 8) {
 // Rutas para usuarios
 app.get('/usuarios', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM usuarios ORDER BY nombre');
+    const [rows] = await pool.execute('SELECT * FROM usuarios ORDER BY nombre');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
@@ -71,7 +62,7 @@ app.post('/usuarios', async (req, res) => {
     const contrasenaTemp = generarContrasenaAleatoria();
     const hashedPassword = await bcrypt.hash(contrasenaTemp, 10);
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'INSERT INTO usuarios (nombre, correo, rol, contrasena, contrasena_temporal) VALUES (?, ?, ?, ?, TRUE)',
       [nombre, correo, rol, hashedPassword]
     );
@@ -108,7 +99,7 @@ app.put('/usuarios/:id', async (req, res) => {
     query += ' WHERE id = ?';
     params.push(id);
 
-    const [result] = await db.execute(query, params);
+    const [result] = await pool.execute(query, params);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -126,7 +117,7 @@ app.delete('/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM usuarios WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM usuarios WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -148,7 +139,7 @@ app.post('/fidelizacion', async (req, res) => {
       return res.status(400).json({ message: 'Cliente y Categoria son requeridos' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'INSERT INTO fidelizacion (cliente, fecha_Afiliacion, categoria) VALUES (?, ?, ?)',
       [cliente, fechaRegistro, categoria]
     );
@@ -168,7 +159,7 @@ app.put('/fidelizacion/:id', async (req, res) => {
     const { id } = req.params;
     const { cliente, fechaRegistro, categoria } = req.body;
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'UPDATE fidelizacion SET cliente = ?,fecha_Afiliacion = ?, categoria = ? WHERE id = ?',
       [cliente, fechaRegistro, categoria, id]
     );
@@ -187,7 +178,7 @@ app.delete('/fidelizacion/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM fidelizacion WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM fidelizacion WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario fidelizacion no encontrado' });
@@ -202,7 +193,7 @@ app.delete('/fidelizacion/:id', async (req, res) => {
 // Rutas para fidelizacion - NUEVO
 app.get('/fidelizacion', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM fidelizacion ORDER BY cliente');
+    const [rows] = await pool.execute('SELECT * FROM fidelizacion ORDER BY cliente');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener fidelizacion:', error);
@@ -213,7 +204,7 @@ app.get('/fidelizacion', async (req, res) => {
 // Rutas para Compras - NUEVOAdd commentMore actions
 app.get('/compras', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM compras ORDER BY usuario_id');
+    const [rows] = await pool.execute('SELECT * FROM compras ORDER BY usuario_id');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener compras:', error);
@@ -230,7 +221,7 @@ app.post('/compras', async (req, res) => {
       return res.status(400).json({ message: 'Usuario y proveedor son requeridos' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'INSERT INTO COMPRAS (usuario_id, proveedor_id, fecha_realizada, producto_id, precio_unitario, cantidad_producto, total) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [usuario, proveedor, fecha, producto, precio, cantidad, total]
     );
@@ -251,7 +242,7 @@ app.put('/compras/:id', async (req, res) => {
     const { id } = req.params;
     const { usuario, proveedor, fecha, producto, precio, cantidad, total } = req.body;
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'UPDATE compras SET usuario_id = ?, proveedor_id = ?, fecha_realizada = ?, producto_id = ?, precio_unitario = ?, cantidad_producto = ?, total = ? WHERE id = ?',
       [usuario, proveedor, fecha, producto, precio, cantidad, total, id]
     );
@@ -272,7 +263,7 @@ app.delete('/compras/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM compras WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM compras WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Compra no encontrada' });
@@ -294,7 +285,7 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Correo y contraseña son requeridos' });
     }
 
-    const [rows] = await db.execute(
+    const [rows] = await pool.execute(
       'SELECT * FROM usuarios WHERE correo = ?',
       [correo]
     );
@@ -338,7 +329,7 @@ app.put('/usuarios/:id/cambiar-contrasena', async (req, res) => {
       return res.status(400).json({ message: 'Contraseña actual y nueva contraseña son requeridas' });
     }
 
-    const [rows] = await db.execute('SELECT * FROM usuarios WHERE id = ?', [id]);
+    const [rows] = await pool.execute('SELECT * FROM usuarios WHERE id = ?', [id]);
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
@@ -351,7 +342,7 @@ app.put('/usuarios/:id/cambiar-contrasena', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
-    await db.execute(
+    await pool.execute(
       'UPDATE usuarios SET contrasena = ?, contrasena_temporal = FALSE WHERE id = ?',
       [hashedPassword, id]
     );
@@ -372,7 +363,7 @@ app.post('/recuperar-contrasena', async (req, res) => {
       return res.status(400).json({ message: 'Correo es requerido' });
     }
 
-    const [rows] = await db.execute('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+    const [rows] = await pool.execute('SELECT * FROM usuarios WHERE correo = ?', [correo]);
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Correo no encontrado' });
     }
@@ -381,7 +372,7 @@ app.post('/recuperar-contrasena', async (req, res) => {
     const nuevaContrasena = generarContrasenaAleatoria();
     const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
 
-    await db.execute(
+    await pool.execute(
       'UPDATE usuarios SET contrasena = ?, contrasena_temporal = TRUE WHERE id = ?',
       [hashedPassword, usuario.id]
     );
@@ -408,7 +399,7 @@ app.post('/recuperar-contrasena', async (req, res) => {
 // Rutas para productos
 app.get('/productos', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM PRODUCTOS ORDER BY fecha_registro DESC');
+    const [rows] = await pool.execute('SELECT * FROM PRODUCTOS ORDER BY fecha_registro DESC');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener productos:', error);
@@ -424,7 +415,7 @@ app.post('/productos', async (req, res) => {
       return res.status(400).json({ message: 'Nombre y categoría son requeridos' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'INSERT INTO PRODUCTOS (nombre, categoria, unidad_medida, descripcion, estado) VALUES (?, ?, ?, ?, ?)',
       [nombre, categoria, unidad_medida, descripcion, estado]
     );
@@ -444,7 +435,7 @@ app.put('/productos/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, categoria, unidad_medida, descripcion, estado } = req.body;
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'UPDATE PRODUCTOS SET nombre = ?, categoria = ?, unidad_medida = ?, descripcion = ?, estado = ? WHERE id = ?',
       [nombre, categoria, unidad_medida, descripcion, estado, id]
     );
@@ -464,7 +455,7 @@ app.delete('/productos/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM PRODUCTOS WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM PRODUCTOS WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Producto no encontrado' });
@@ -480,7 +471,7 @@ app.delete('/productos/:id', async (req, res) => {
 // Ruta para obtener productos activos
 app.get('/productos/activos', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM PRODUCTOS WHERE estado = "Activo" ORDER BY fecha_registro DESC');
+    const [rows] = await pool.execute('SELECT * FROM PRODUCTOS WHERE estado = "Activo" ORDER BY fecha_registro DESC');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener productos activos:', error);
@@ -497,7 +488,7 @@ app.get('/inventario', async (req, res) => {
       JOIN PRODUCTOS p ON inv.producto_id = p.id
       ORDER BY inv.fecha_registro DESC
     `;
-    const [rows] = await db.execute(query);
+    const [rows] = await pool.execute(query);
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener inventario:', error);
@@ -509,7 +500,7 @@ app.post('/inventario', async (req, res) => {
   try {
     const { producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado } = req.body;
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       `INSERT INTO INVENTARIO 
         (producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -531,7 +522,7 @@ app.put('/inventario/:id', async (req, res) => {
     const { id } = req.params;
     const { producto_id, stock_actual, stock_minimo, precio_unitario, fecha_ingreso, fecha_vencimiento, estado } = req.body;
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       `UPDATE INVENTARIO SET 
         producto_id = ?, stock_actual = ?, stock_minimo = ?, precio_unitario = ?, 
         fecha_ingreso = ?, fecha_vencimiento = ?, estado = ?
@@ -554,7 +545,7 @@ app.delete('/inventario/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM INVENTARIO WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM INVENTARIO WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Registro de inventario no encontrado' });
@@ -576,7 +567,7 @@ app.get('/proveedores', async (req, res) => {
       LEFT JOIN PRODUCTOS pr ON p.producto_id = pr.id
       ORDER BY p.fecha_registro DESC
     `;
-    const [rows] = await db.execute(query);
+    const [rows] = await pool.execute(query);
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener proveedores:', error);
@@ -588,7 +579,7 @@ app.get('/proveedores/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const query = 'SELECT * FROM PROVEEDORES WHERE id = ?';
-    const [rows] = await db.execute(query, [id]);
+    const [rows] = await pool.execute(query, [id]);
 
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Proveedor no encontrado' });
@@ -615,7 +606,7 @@ app.post('/proveedores', async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [result] = await db.execute(query, [
+    const [result] = await pool.execute(query, [
       nombre,
       empresa || null,
       telefono || null,
@@ -653,7 +644,7 @@ app.put('/proveedores/:id', async (req, res) => {
       WHERE id = ?
     `;
 
-    const [result] = await db.execute(query, [
+    const [result] = await pool.execute(query, [
       nombre,
       empresa || null,
       telefono || null,
@@ -682,7 +673,7 @@ app.delete('/proveedores/:id', async (req, res) => {
     const { id } = req.params;
 
     const query = 'DELETE FROM PROVEEDORES WHERE id = ?';
-    const [result] = await db.execute(query, [id]);
+    const [result] = await pool.execute(query, [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Proveedor no encontrado' });
@@ -695,10 +686,201 @@ app.delete('/proveedores/:id', async (req, res) => {
   }
 });
 
+// Rutas para facturas de proveedores
+app.get('/facturas-proveedores', async (req, res) => {
+  try {
+    const { proveedor_id } = req.query;
+    let query = `
+      SELECT fp.*, p.nombre as nombre_proveedor
+      FROM facturas_proveedores fp
+      JOIN PROVEEDORES p ON fp.proveedor_id = p.id
+    `;
+    const params = [];
+
+    if (proveedor_id) {
+      query += ' WHERE fp.proveedor_id = ?';
+      params.push(proveedor_id);
+    }
+
+    query += ' ORDER BY fp.fecha_emision DESC';
+
+    const [rows] = await pool.execute(query, params);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener facturas de proveedores:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/facturas-proveedores', async (req, res) => {
+  try {
+    const { proveedor_id, numero_factura, monto, fecha_emision } = req.body;
+
+    if (!proveedor_id || !numero_factura || !monto || !fecha_emision) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    const query = `
+      INSERT INTO facturas_proveedores (proveedor_id, numero_factura, monto, saldo, fecha_emision) 
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await pool.execute(query, [proveedor_id, numero_factura, monto, monto, fecha_emision]);
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Factura de proveedor creada exitosamente'
+    });
+  } catch (error) {
+    console.error('Error al crear factura de proveedor:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/abonos-proveedores', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const { factura_id, monto, fecha_abono } = req.body;
+
+    if (!factura_id || !monto || !fecha_abono) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    const [factura] = await connection.execute('SELECT * FROM facturas_proveedores WHERE id = ?', [factura_id]);
+
+    if (factura.length === 0) {
+      return res.status(404).json({ error: 'Factura no encontrada' });
+    }
+
+    const saldo_actual = factura[0].saldo;
+
+    if (monto > saldo_actual) {
+      return res.status(400).json({ error: 'El monto del abono no puede ser mayor al saldo actual' });
+    }
+
+    const nuevo_saldo = saldo_actual - monto;
+
+    await connection.execute('UPDATE facturas_proveedores SET saldo = ? WHERE id = ?', [nuevo_saldo, factura_id]);
+
+    const query = `
+      INSERT INTO abonos_proveedores (factura_id, monto, fecha_abono) 
+      VALUES (?, ?, ?)
+    `;
+
+    const [result] = await connection.execute(query, [factura_id, monto, fecha_abono]);
+    
+    await connection.commit();
+
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Abono realizado exitosamente'
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Error al crear abono:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  } finally {
+    connection.release();
+  }
+});
+
+app.get('/abonos-proveedores/:factura_id', async (req, res) => {
+  try {
+    const { factura_id } = req.params;
+    const query = 'SELECT * FROM abonos_proveedores WHERE factura_id = ? ORDER BY fecha_abono DESC';
+    const [rows] = await pool.execute(query, [factura_id]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener abonos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.put('/facturas-proveedores/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { proveedor_id, numero_factura, monto, fecha_emision } = req.body;
+
+    if (!proveedor_id || !numero_factura || !monto || !fecha_emision) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    const query = `
+      UPDATE facturas_proveedores 
+      SET proveedor_id = ?, numero_factura = ?, monto = ?, fecha_emision = ?
+      WHERE id = ?
+    `;
+
+    const [result] = await pool.execute(query, [proveedor_id, numero_factura, monto, fecha_emision, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Factura de proveedor no encontrada' });
+    }
+
+    res.json({ message: 'Factura de proveedor actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar factura de proveedor:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.delete('/facturas-proveedores/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM facturas_proveedores WHERE id = ?';
+    const [result] = await pool.execute(query, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Factura de proveedor no encontrada' });
+    }
+
+    res.json({ message: 'Factura de proveedor eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar factura de proveedor:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.get('/reportes/deuda-proveedor-semanal', async (req, res) => {
+  try {
+    const { proveedor_id, fecha_inicio, fecha_fin } = req.query;
+
+    if (!proveedor_id || !fecha_inicio || !fecha_fin) {
+      return res.status(400).json({ error: 'proveedor_id, fecha_inicio y fecha_fin son requeridos' });
+    }
+
+    const query = `
+      SELECT 
+        p.nombre as nombre_proveedor,
+        fp.numero_factura,
+        fp.monto,
+        fp.fecha_emision
+      FROM facturas_proveedores fp
+      JOIN PROVEEDORES p ON fp.proveedor_id = p.id
+      WHERE fp.proveedor_id = ? AND fp.fecha_emision BETWEEN ? AND ?
+      ORDER BY fp.fecha_emision
+    `;
+
+    const [rows] = await pool.execute(query, [proveedor_id, fecha_inicio, fecha_fin]);
+    
+    const total = rows.reduce((acc, curr) => acc + curr.monto, 0);
+
+    res.json({
+      facturas: rows,
+      total: total
+    });
+  } catch (error) {
+    console.error('Error al generar el reporte de deuda semanal:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 // Rutas para sucursales/puntos de venta
 app.get('/sucursales', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM sucursales ORDER BY nombre');
+    const [rows] = await pool.execute('SELECT * FROM sucursales ORDER BY nombre');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener sucursales:', error);
@@ -708,7 +890,7 @@ app.get('/sucursales', async (req, res) => {
 
 app.get('/sucursales/activas', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM sucursales WHERE estado = "activa" ORDER BY nombre');
+    const [rows] = await pool.execute('SELECT * FROM sucursales WHERE estado = "activa" ORDER BY nombre');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener sucursales activas:', error);
@@ -724,7 +906,7 @@ app.post('/sucursales', async (req, res) => {
       return res.status(400).json({ message: 'Nombre, tipo y ubicación son requeridos' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'INSERT INTO sucursales (nombre, tipo, ubicacion, estado) VALUES (?, ?, ?, ?)',
       [nombre, tipo, ubicacion, estado || 'activa']
     );
@@ -744,7 +926,7 @@ app.put('/sucursales/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, tipo, ubicacion, estado } = req.body;
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'UPDATE sucursales SET nombre = ?, tipo = ?, ubicacion = ?, estado = ? WHERE id = ?',
       [nombre, tipo, ubicacion, estado, id]
     );
@@ -764,7 +946,7 @@ app.delete('/sucursales/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM sucursales WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM sucursales WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Sucursal no encontrada' });
@@ -786,7 +968,7 @@ app.patch('/sucursales/:id/estado', async (req, res) => {
       return res.status(400).json({ message: 'Estado debe ser "activa" o "inactiva"' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'UPDATE sucursales SET estado = ? WHERE id = ?',
       [estado, id]
     );
@@ -827,7 +1009,7 @@ app.get('/ventas-diarias', async (req, res) => {
 
     query += ' ORDER BY fecha_venta DESC, sucursal_nombre';
 
-    const [rows] = await db.execute(query, params);
+    const [rows] = await pool.execute(query, params);
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener ventas diarias:', error);
@@ -838,7 +1020,7 @@ app.get('/ventas-diarias', async (req, res) => {
 app.get('/ventas-diarias/hoy', async (req, res) => {
   try {
     const hoy = new Date().toISOString().split('T')[0];
-    const [rows] = await db.execute(
+    const [rows] = await pool.execute(
       'SELECT * FROM vista_ventas_diarias WHERE fecha_venta = ? ORDER BY sucursal_nombre',
       [hoy]
     );
@@ -882,7 +1064,7 @@ app.get('/ventas-diarias/resumen', async (req, res) => {
 
     query += ' GROUP BY sucursal_id, sucursal_nombre, sucursal_tipo ORDER BY total_ventas DESC';
 
-    const [rows] = await db.execute(query, params);
+    const [rows] = await pool.execute(query, params);
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener resumen de ventas:', error);
@@ -898,12 +1080,12 @@ app.post('/ventas-diarias', async (req, res) => {
       return res.status(400).json({ message: 'Sucursal y fecha de venta son requeridos' });
     }
 
-    const [sucursal] = await db.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
+    const [sucursal] = await pool.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
     if (sucursal.length === 0) {
       return res.status(400).json({ message: 'La sucursal no existe o está inactiva' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       `INSERT INTO ventas_diarias 
        (sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -936,12 +1118,12 @@ app.put('/ventas-diarias/:id', async (req, res) => {
     const { id } = req.params;
     const { sucursal_id, fecha_venta, venta_efectivo, venta_tarjeta, venta_sinpe, observaciones, estado } = req.body;
 
-    const [sucursal] = await db.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
+    const [sucursal] = await pool.execute('SELECT id FROM sucursales WHERE id = ? AND estado = "activa"', [sucursal_id]);
     if (sucursal.length === 0) {
       return res.status(400).json({ message: 'La sucursal no existe o está inactiva' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       `UPDATE ventas_diarias 
        SET sucursal_id = ?, fecha_venta = ?, venta_efectivo = ?, venta_tarjeta = ?, 
            venta_sinpe = ?, observaciones = ?, estado = ?
@@ -967,7 +1149,7 @@ app.delete('/ventas-diarias/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.execute('DELETE FROM ventas_diarias WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM ventas_diarias WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Venta diaria no encontrada' });
@@ -989,7 +1171,7 @@ app.patch('/ventas-diarias/:id/estado', async (req, res) => {
       return res.status(400).json({ message: 'Estado debe ser "pendiente", "confirmada" o "cerrada"' });
     }
 
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'UPDATE ventas_diarias SET estado = ? WHERE id = ?',
       [estado, id]
     );
@@ -1022,7 +1204,7 @@ app.get('/ventas-diarias/estadisticas', async (req, res) => {
       params.push(fecha_fin);
     }
 
-    const [stats] = await db.execute(`
+    const [stats] = await pool.execute(`
       SELECT 
         COUNT(*) as total_registros,
         COUNT(DISTINCT sucursal_id) as sucursales_activas,
@@ -1044,12 +1226,6 @@ app.get('/ventas-diarias/estadisticas', async (req, res) => {
   }
 });
 
-async function startServer() {
-  await connectDB();
-
-  app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  });
-}
-
-startServer().catch(console.error);
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

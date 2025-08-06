@@ -1,14 +1,45 @@
 import React from 'react';
 import { useAuth } from '../components/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const getPageTitle = () => {
+    const path = location.pathname;
+    switch (path) {
+      case '/home':
+        return { title: 'Dashboard', subtitle: 'Panel de control principal' };
+      case '/ventas':
+        return { title: 'Ventas', subtitle: 'Administra tus ventas' };
+      case '/compras':
+        return { title: 'Compras', subtitle: 'Administra tus compras' };
+      case '/inventario':
+        return { title: 'Inventario', subtitle: 'Administra tu inventario' };
+      case '/fidelizacion':
+        return { title: 'Fidelización', subtitle: 'Administra tu programa de fidelización' };
+      case '/proveedores':
+        return { title: 'Proveedores', subtitle: 'Administra tus proveedores' };
+      case '/cuentas-por-pagar':
+        return { title: 'Cuentas por Pagar', subtitle: 'Administra las facturas de tus proveedores' };
+      case '/productos':
+        return { title: 'Productos', subtitle: 'Administra tus productos' };
+      case '/usuario':
+        return { title: 'Usuario', subtitle: 'Administra tu usuario' };
+      case '/sucursales':
+        return { title: 'Sucursales', subtitle: 'Administra tus sucursales' };
+      default:
+        return { title: 'Dashboard', subtitle: 'Panel de control principal' };
+    }
+  };
+
+  const { title, subtitle } = getPageTitle();
 
   const handleLogout = () => {
-    logout();           // Limpia el usuario del contexto y localStorage
-    navigate('/login'); // Redirige al login
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -17,22 +48,12 @@ const Header = () => {
         <div className="d-flex justify-content-between align-items-center py-3">
           {/* Título de la página actual */}
           <div>
-            <h4 className="mb-0 fw-bold text-dark">Dashboard</h4>
-            <small className="text-muted">Panel de control principal</small>
+            <h4 className="mb-0 fw-bold text-dark">{title}</h4>
+            <small className="text-muted">{subtitle}</small>
           </div>
 
           {/* Usuario y configuraciones */}
           <div className="d-flex align-items-center gap-3">
-            {/* Notificaciones */}
-            <div className="position-relative">
-              <button className="btn btn-light btn-sm rounded-circle p-2">
-                <i className="fas fa-bell text-primary-orange"></i>
-              </button>
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary-orange small">
-                3
-              </span>
-            </div>
-
             {/* Dropdown del usuario */}
             <div className="dropdown">
               <button 
@@ -52,25 +73,6 @@ const Header = () => {
                 </div>
               </button>
               <ul className="dropdown-menu dropdown-menu-end shadow border-0">
-                <li>
-                  <a className="dropdown-item py-2" href="#">
-                    <i className="fas fa-user-circle me-2 text-muted"></i>
-                    Mi Perfil
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item py-2" href="#">
-                    <i className="fas fa-cog me-2 text-muted"></i>
-                    Configuración
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item py-2" href="#">
-                    <i className="fas fa-question-circle me-2 text-muted"></i>
-                    Ayuda
-                  </a>
-                </li>
-                <li><hr className="dropdown-divider" /></li>
                 <li>
                   <button className="dropdown-item py-2 text-danger" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt me-2"></i>

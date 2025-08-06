@@ -7,6 +7,7 @@ import Compras from './pages/Compras';
 import Ventas from './pages/Ventas';
 import Inventario from './pages/Inventario';
 import Proveedores from './pages/Proveedores';
+import CuentasPorPagar from './pages/CuentasPorPagar';
 import Usuario from './pages/Usuario';
 import Productos from './pages/Productos';
 import Sucursales from './pages/Sucursales';
@@ -76,6 +77,11 @@ function App() {
           <Route path="/proveedores" element={
             <ProtectedRoute>
               <Proveedores />
+            </ProtectedRoute>
+          } />
+          <Route path="/cuentas-por-pagar" element={
+            <ProtectedRoute>
+              <CuentasPorPagar />
             </ProtectedRoute>
           } />
           <Route path="/sucursales" element={

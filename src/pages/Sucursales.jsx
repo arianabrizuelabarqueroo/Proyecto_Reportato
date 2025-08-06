@@ -230,10 +230,6 @@ const Sucursales = () => {
                     </p>
                   </div>
                   <div className="d-flex gap-2">
-                    <button className="btn btn-outline-primary-green">
-                      <i className="fas fa-download me-1"></i>
-                      Exportar
-                    </button>
                     <button 
                       className="btn btn-primary-purple"
                       onClick={() => setShowModal(true)}

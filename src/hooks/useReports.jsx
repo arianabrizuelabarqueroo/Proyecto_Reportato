@@ -160,6 +160,25 @@ const useReports = () => {
     }
   };
 
+  const generateCuentasPorPagarReport = async (facturas, filters = {}) => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const reportService = new ReportService();
+      reportService.generateCuentasPorPagarReport(facturas, filters);
+      const filename = `reporte_cuentas_por_pagar_${new Date().toISOString().split('T')[0]}.pdf`;
+      reportService.downloadPDF(filename);
+      return { success: true, filename };
+    } catch (err) {
+      console.error('Error al generar reporte de cuentas por pagar:', err);
+      setError('Error al generar el reporte PDF de cuentas por pagar');
+      return { success: false, error: err.message };
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     generateDailyReport,
     generateWeeklyReport,
@@ -167,6 +186,7 @@ const useReports = () => {
     generateInventoryReport,
     generateProductReport,
     generateSupplierReport,
+    generateCuentasPorPagarReport,
     generateComparativeReport,
     isGenerating,
     error,

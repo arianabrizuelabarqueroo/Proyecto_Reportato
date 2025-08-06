@@ -27,16 +27,16 @@ const Sidebar = () => {
       href: "inventario",
     },
     {
-      title: "Fidelizacion",
-      icon: "fas fa-star-half-stroke",
-      active: false,
-      href: "fidelizacion",
-    },
-    {
       title: "Proveedores",
       icon: "fas fa-truck-field",
       active: false,
       href: "proveedores",
+    },
+    {
+      title: "Cuentas por Pagar",
+      icon: "fas fa-file-invoice-dollar",
+      active: false,
+      href: "cuentas-por-pagar",
     },
      {
       title: 'Productos',
@@ -118,22 +118,6 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
-
-      {/* Información adicional en el sidebar */}
-      <div className="sidebar-footer mt-auto p-3">
-        <div className="bg-light rounded-3 p-3 text-center">
-          <i className="fas fa-chart-pie text-primary-orange fs-4 mb-2"></i>
-          <h6 className="fw-bold mb-1">Ventas del Día</h6>
-          <p className="text-primary-green fw-bold mb-0">$2,450.00</p>
-          <small className="text-muted">Meta: $3,000.00</small>
-          <div className="progress mt-2" style={{ height: "4px" }}>
-            <div
-              className="progress-bar bg-primary-green"
-              style={{ width: "82%" }}
-            ></div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

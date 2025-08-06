@@ -198,3 +198,29 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES USUARIOS(id) ON DELETE CASCADE
 );
+
+-- ==========================================
+-- TABLA DE FACTURAS DE PROVEEDORES
+-- ==========================================
+CREATE TABLE IF NOT EXISTS facturas_proveedores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  proveedor_id INT NOT NULL,
+  numero_factura VARCHAR(100) NOT NULL,
+  monto DECIMAL(10, 2) NOT NULL,
+  saldo DECIMAL(10, 2) NOT NULL,
+  fecha_emision DATE NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (proveedor_id) REFERENCES PROVEEDORES(id) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- TABLA DE ABONOS DE PROVEEDORES
+-- ==========================================
+CREATE TABLE IF NOT EXISTS abonos_proveedores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  factura_id INT NOT NULL,
+  monto DECIMAL(10, 2) NOT NULL,
+  fecha_abono DATE NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (factura_id) REFERENCES facturas_proveedores(id) ON DELETE CASCADE
+);
